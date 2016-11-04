@@ -1,0 +1,25 @@
+#So now I could just change this one to change everything else
+NUMCARDS = 52
+DECK = 0
+PLAYER = 1
+COMP = 2
+
+playerOn = 0
+
+cardLoc = [0] * NUMCARDS
+suitName = ("hearts", "diamonds", "spades", "clubs")
+rankName = ("Ace", "Two", "Three", "Four", "Five", "Six", "Seven", 
+            "Eight", "Nine", "Ten", "Jack", "Queen", "King")
+playerName = ["deck"]
+
+'''rankName2 = ["Ace", "Two", "Three", "Four", "Five", "Six", "Seven", 
+            "Eight", "Nine", "Ten", "Jack", "Queen", "King"]
+'''
+FAKE_HAND = [12,12,12,12,12]
+FAKE_SUIT = [3,3,3,3,3] #These ones I could probably delete
+
+numPlayers = 4 #I need to work on stuff to do games larger than 3
+
+wonWith = ["Royal Flush", "Straight Flush", "Four of a Kind", "Full House", "Flush", "Straight", "Three of a Kind", "Two pair", "One pair", "High Card"]
+#I can add scores to here then change it in the main CardGameLogic to refrence ICG.scores
+#Doing this will have me eliminate the use when refrencing items in the parameters

@@ -1,0 +1,200 @@
+""" FIVE CARD DRAW POKER
+    basic card game framework
+    keeps track of card locations for as many hands as needed"""
+from random import *
+import ScoringHand
+import InitilizingCardGame as ICG
+
+def clearDeck(): 
+    for i in range (ICG.NUMCARDS):
+        ICG.cardLoc[i] = ICG.DECK
+
+def assignCard(playerIndex): 
+    keepGoing = True
+    while keepGoing:
+        i = int (random() * ICG.NUMCARDS)
+        if (ICG.cardLoc[i] == ICG.DECK): 
+            ICG.cardLoc[i] = playerIndex 
+            keepGoing = False 
+
+def showDeck(): #shows the location for all of the cards 
+    print("Location of all cards") 
+    print("#" + "\t" + "card" + "\t" + "\t " + "Location") 
+    for i in range(ICG.NUMCARDS): 
+        print(printCard(ICG.cardLoc,i)) 
+    print("\n") 
+
+def showHand(playerIndex): #I THINK THAT THIS IS THE ONLY PART THAT WILL BE DIFFRENT
+    for i in range(ICG.NUMCARDS): 
+        if (ICG.cardLoc[i] == playerIndex):
+            print(printCard(ICG.cardLoc,i)) 
+    print("\n")
+    
+def scoreHand(playerOn): #I THINK THAT THIS IS THE ONLY PART THAT WILL BE DIFFRENT
+    hand = []
+    for i in range(ICG.NUMCARDS): 
+        if (ICG.cardLoc[i] == playerOn):
+            hand.append(i) 
+    return hand
+
+def printCard(cardLoc, i):
+    sN = i // len(ICG.rankName)  
+    rN = i % len(ICG.rankName)    
+    return ('{:3}  {:5} of {:10} {}'.format(str(i),str(ICG.rankName[rN]),str(ICG.suitName[sN]),str(ICG.playerName[cardLoc[i]])))
+
+def printPlayerName(playerOn):
+    return ICG.numPlayers[playerOn + 1]
+    
+def main():
+    #We need to know how many players there are
+    scores = [[-1 for i in range(10)] for j in range(ICG.numPlayers)] #This makes a double array
+    clearDeck()
+    
+    '''for i in range(5): #this assigns 5 random cards to the players back and fourth
+        assignCard(ICG.PLAYER) 
+        assignCard(ICG.COMP)
+    #showDeck()'''
+    
+    for i in range(5):#Five times
+        for playerOn in range (ICG.numPlayers): #giving one card to each player
+            assignCard(playerOn + 1) #this assigns cards to the players
+            #To understand read this nested for comments down to up
+    
+    playerOn = 1
+    while playerOn <= ICG.numPlayers:
+        print("\nIt is "+ ICG.playerName[playerOn] + "'s Turn")
+        showHand(playerOn)
+        scoreHand(playerOn)
+        
+        exchangeHand(playerOn, scoreHand(playerOn))
+        showHand(playerOn)
+        print("End Player " + ICG.playerName[playerOn] + "'s Turn")
+        print("_ " * 15)
+        wait = input ("Pass to Next Player"  + "\n" * 3)
+        playerOn += 1 #it will then go to the next player
+
+    
+
+    '''    
+    showHand(ICG.PLAYER) #It will say you have a ACE,Queen,Jack, 10, King 
+    scoreHand(ICG.PLAYER) #I need to do my exchanging
+    exchangeHand(ICG.PLAYER, scoreHand(ICG.PLAYER)) #this will be playerOn
+    showHand(ICG.PLAYER)
+
+    showHand(ICG.COMP)
+    scoreHand(ICG.COMP)
+    exchangeHand(ICG.COMP, scoreHand(ICG.PLAYER))
+    showHand(ICG.COMP)'''
+    for ICG.playerOn in range (1 ,ICG.numPlayers + 1):
+        #print("Player On: " + str(ICG.playerOn))
+        Arr,Ar2 = Sort(scoreHand(ICG.playerOn))
+        scores = ScorePlayer(Arr,Ar2,ICG.playerOn, scores)
+
+    print(scores)
+    #print(WhoWon(scores))
+    
+    if (ICG.numPlayers == 1):
+        pass
+    elif (ICG.numPlayers == 2):
+        print("Player " + ICG.playerName[WhoWon(0,1,scores) + 1] + " wins") 
+    elif (ICG.numPlayers == 3):
+        print("Player " + ICG.playerName[WhoWon(WhoWon(0,1,scores),2,scores) + 1] + " wins")
+    elif (ICG.numPlayers == 4):
+        print("Player " + ICG.playerName[WhoWon(WhoWon(0,1,scores),WhoWon(2,3,scores),scores) + 1] + " wins") #I don't like this going to try to make it recursive
+        
+def exchangeHand (playerOn, hand): #This should work for any amount of players
+    ar3 = [-1] * 5
+    print(hand)
+    for i in range (5):
+        keepGoing = True
+        while keepGoing:
+            printCard(ICG.cardLoc, hand[i])
+            exchangeStr = input("(Y,N) Would you like to keep " + str(hand[i]) + ": ")
+
+            if (exchangeStr.upper() == "YES" or exchangeStr.upper() == "Y"):
+                ar3[i] = True
+                keepGoing = False
+            elif (exchangeStr.upper() == "NO" or exchangeStr.upper() == "N"):
+                ar3[i] = False
+                keepGoing = False
+            else:
+                print("I don't know what you said") #This series of if's will make sure that the user either said yes or no in the ways that I wa
+    print(ar3) #So now I have an array of [True, True, False, False, True]
+    #What is the point
+
+    for i in range(5):
+        if not (ar3[i]):
+            ICG.cardLoc[hand[i]] = ICG.DECK #this puts the card back into the deck
+            assignCard(playerOn)
+    print("NEW HAND") #DELETE
+            
+def ScorePlayer(Arr,Ar2,playerOn,scores):
+    ''' print("\n") #Delete these print statements
+    print('Arr: ' + str(Arr))
+    print('Ar2: ' + str(Ar2))
+    
+    print ('HIGH CARD: ' +      str(ScoringHand.HighCard (Arr)))
+    print('OnePair: ' +         str(ScoringHand.OnePair(Arr)))
+    print('two pair: '+         str(ScoringHand.TwoPair(Arr)))
+    print('threeofakind: '+     str(ScoringHand.ThreeOfAKind(Arr)))
+    print('straight: '+         str(ScoringHand.Straight(Arr)))
+    print('flush: '+            str(ScoringHand.Flush(Ar2)))
+    print('fullhouse: '+        str(ScoringHand.FullHouse(Arr)))
+    print('fourofakind: '+      str(ScoringHand.FourOfAKind(Arr)))
+    print('straightflush: '+    str(ScoringHand.StraightFlush(Arr,Ar2)))
+    print('royalflush: '+       str(ScoringHand.RoyalFlush(Arr,Ar2))) #Can delete this later'''
+    scores[playerOn -1] = [ScoringHand.HighCard(Arr),
+                           ScoringHand.OnePair(Arr),
+                           ScoringHand.TwoPair(Arr),
+                           ScoringHand.ThreeOfAKind(Arr),
+                           ScoringHand.Straight(Arr),
+                           ScoringHand.Flush(Ar2),
+                           ScoringHand.FullHouse(Arr),
+                           ScoringHand.FourOfAKind(Arr),
+                           ScoringHand.FourOfAKind(Arr),
+                           ScoringHand.StraightFlush(Arr,Ar2),
+                           ScoringHand.RoyalFlush(Arr,Ar2)]    
+    return scores 
+
+def WhoWon(player1,player2,scores):
+    for i in range(10):
+        if (scores[player1][9 - i] > scores[player2][9 - i]):
+            return player1
+        elif (scores[player1][0 - i] < scores[player2][9 - i]):
+            return player2       
+        
+''' def WhoWon(scores): #this assumes that we are using the final values for the hands
+    #Wahat I want it to do is look at the furthest one down then it will return the best player
+    #for p in range(0,2): #I want the range to be from (0, NumPlayers)
+    #       for i in range:
+    #        if (scores[p][0+x] > scores[p][1+x]):
+    #            print("Winwar is player " + str(p)
+    #return p #this is the player
+    #scores[ICG.playerOn][index]
+    for i in range(10):
+        if (scores[0][9 - i] > scores[1][9 - i]):
+            return("Player 1 wins with " + ICG.wonWith[i]))
+        elif (scores[0][0 - i] < scores[1][9 - i]):
+            return("Player 2 wins with " + ICG.wonWith[i]))
+            #This will only work against 2 players
+            #this loop compares Royal flush, then straight flush ect.'''
+
+def Sort(hand): #This makes Arr and Ar2 given hand
+    Arr = [-1] * 5 
+    Ar2 = [-1] * 5 
+    
+    for i in range(len(hand)):
+        
+        Arr[i] = hand[i] % len(ICG.rankName)
+        if(Arr[i] == 0):
+            Arr[i] = 13
+        Arr[i] += 1
+        Ar2[i] = hand[i] // len(ICG.rankName)
+        
+    Arr.sort()
+    Ar2.sort()
+    return Arr, Ar2 
+    #return ICG.FAKE_HAND,ICG.FAKE_SUIT #Delete
+
+if __name__ == "__main__":
+    main()

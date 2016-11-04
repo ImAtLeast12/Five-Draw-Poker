@@ -2,199 +2,170 @@
     basic card game framework
     keeps track of card locations for as many hands as needed"""
 from random import *
-import ScoringHand
-import InitilizingCardGame as ICG
+import ScoringHandBlackbelt as SH
+import InitilizingCardGameBlackbelt as ICG
 
-def clearDeck(): 
-    for i in range (ICG.NUMCARDS):
-        ICG.cardLoc[i] = ICG.DECK
+def main():
+    scores = [[-1 for i in range(len(ICG.wonWith))] for j in range(ICG.numPlayers)] #make a 2d array called scores[#posibleHands][#players]
+    clearDeck() #put all of the cards into the deck, none are any of the players
+    
+    for i in range(5): #give 5 cards to everyone playing this will be their hand
+        for playerOn in range (1,ICG.numPlayers + 1): 
+            assignCard(playerOn) 
+    
+    ICG.playerOn = 1 #Start at 1 because 0 is for deck
+    while ICG.playerOn <= ICG.numPlayers: #Keep going until I am on the last player
+        print("\nIt is "+ ICG.playerName[ICG.playerOn] + "'s Turn") #Display whos turn it is
+        showHand(ICG.playerOn) #Shows players hand
+        exchangeHand(ICG.playerOn, scoreHand(ICG.playerOn)) #exchange hand cards in the players hand
+        print("\nNEW HAND") #DELET
+        showHand(ICG.playerOn) #show the new hand of the player
+        print("End Player " + ICG.playerName[ICG.playerOn] + "'s Turn") 
+        print("_ "* 15)
+        ICG.playerOn += 1 #Go to the next player
+        if (ICG.playerOn -1 == ICG.numPlayers):
+            wait = input ("Pass to Player " + ICG.playerName[ICG.playerOn - ICG.numPlayers] + "\n" * 3) #pass to the first player if you are on the last player
+        else:
+            wait = input ("Pass to Player " + ICG.playerName[ICG.playerOn] + "\n" * 3) #otherwise pass to the next player
+    
+        #This is the magic that calculates the scores
+        #all of the cards are assigned to the correct players in cardLoc
+    for ICG.playerOn in range (1 ,ICG.numPlayers + 1):  #So I need to find all of the players which are from 1 til the #of players
+        Arr,Ar2 = Sort(scoreHand(ICG.playerOn))         #Split them to Arr which focuses on the ranks and Ar2 which focuses on the suit
+        scores = ScorePlayer(Arr,Ar2,ICG.playerOn, scores) #Then using that information I will produce the scores for each player in a 2D array
+    print (str(scores) + "\n")
+    #This if statement is ok for now but my goal is to have this working for 10 players or less
+    if (ICG.numPlayers == 1): #If there is only one player then I you already know who won which is the yourself
+        winner = ICG.playerName[1]
+        print("Player: " + winner + " wins")
+    elif (ICG.numPlayers == 2): #If there is two players then I decide who won by giving the indexes 0 and 1 (in the index of scores) 
+        winner = WhoWon(0,1,scores)
+        print("Player: " + ICG.playerName[winner + 1] + " wins with " + withWhat(winner,scores))
+    elif (ICG.numPlayers == 3):
+        winner = WhoWon(WhoWon(0,1,scores),2,scores)
+        print("Player: " + ICG.playerName[winner + 1] + " wins with " + withWhat(winner,scores))
+    elif (ICG.numPlayers == 4):
+        winner = WhoWon(WhoWon(0,1,scores),WhoWon(2,3,scores),scores)
+        print("Player: " + ICG.playerName[winner + 1] + " wins with " + withWhat(winner,scores))
+        #This ends up having an orderly patern like a bracket style compitition to find the winner
+        
+#What I want to do next is make a withWhat Function
+def withWhat(winner,scores):
+    #what this will do is that if it has the winning player index
+    #then it will tell what it won with
+    for i in range(10):
+        if(scores[winner][9-i] != 0):
+            return ICG.wonWith[i]
 
-def assignCard(playerIndex): 
-    keepGoing = True
-    while keepGoing:
-        i = int (random() * ICG.NUMCARDS)
-        if (ICG.cardLoc[i] == ICG.DECK): 
-            ICG.cardLoc[i] = playerIndex 
-            keepGoing = False 
+def clearDeck(): #This clears the deck 
+    for i in range (ICG.NUMCARDS): #goes through all of the cards 
+        ICG.cardLoc[i] = ICG.DECK  #and stores them in the deck
 
-def showDeck(): #shows the location for all of the cards 
+def assignCard(playerOn): #This gives a single card from the deck to the hand
+    countCardsLeft = []
+    for i in range(ICG.NUMCARDS):
+        
+        if (ICG.cardLoc[i] == ICG.DECK):
+            countCardsLeft.append(i)            
+    i = int(random() * len(countCardsLeft)) #picks a random card from 0 to how many cards are assigned in the deck
+    ICG.cardLoc[countCardsLeft[i]] = playerOn #assignes the card picked value location in the deck is equal to the player you are on
+
+def showDeck(): #shows all of the locations of the cards
     print("Location of all cards") 
-    print("#" + "\t" + "card" + "\t" + "\t " + "Location") 
-    for i in range(ICG.NUMCARDS): 
-        print(printCard(ICG.cardLoc,i)) 
+    print("#" + "\t" + "card" + "\t" + "\t " + "Location") #does a bit of fancy printing
+    for i in range(ICG.NUMCARDS): #goes through all of the cards
+        print(printCard(i)) #prints the card
     print("\n") 
 
-def showHand(playerIndex): #I THINK THAT THIS IS THE ONLY PART THAT WILL BE DIFFRENT
-    for i in range(ICG.NUMCARDS): 
-        if (ICG.cardLoc[i] == playerIndex):
-            print(printCard(ICG.cardLoc,i)) 
-    print("\n")
+def showHand(playerOn): #show the hand of the selected player
+    for i in range(ICG.NUMCARDS): #goes through all of the cards
+        if (ICG.cardLoc[i] == playerOn): #if the location matches the player you are on
+            print(printCard(i)) #then print the card
+    print("")
     
-def scoreHand(playerOn): #I THINK THAT THIS IS THE ONLY PART THAT WILL BE DIFFRENT
+def printCard(i): #Given an Index it will print the card (index Ace of Diamonds player 1)
+    sN = i // len(ICG.rankName)  
+    rN = i % len(ICG.rankName)    
+    return ('{:3}  {:5} of {:10} {}'.format(str(i),str(ICG.rankName[rN]),str(ICG.suitName[sN]),str(ICG.playerName[ICG.cardLoc[i]])))
+
+def blankOfBlank (i): #This function displays the (Ace of Hearts) ect in the hand
+    sN = i // len(ICG.rankName)
+    rN = i % len(ICG.rankName)
+    return ('{} of {}'.format(str(ICG.rankName[rN]),str(ICG.suitName[sN])))
+
+def scoreHand(playerOn): #returns the hand that for the playerOn
     hand = []
     for i in range(ICG.NUMCARDS): 
         if (ICG.cardLoc[i] == playerOn):
             hand.append(i) 
     return hand
 
-def printCard(cardLoc, i):
-    sN = i // len(ICG.rankName)  
-    rN = i % len(ICG.rankName)    
-    return ('{:3}  {:5} of {:10} {}'.format(str(i),str(ICG.rankName[rN]),str(ICG.suitName[sN]),str(ICG.playerName[cardLoc[i]])))
-
-def printPlayerName(playerOn):
-    return ICG.numPlayers[playerOn + 1]
-    
-def main():
-    #We need to know how many players there are
-    scores = [[-1 for i in range(10)] for j in range(ICG.numPlayers)] #This makes a double array
-    clearDeck()
-    
-    '''for i in range(5): #this assigns 5 random cards to the players back and fourth
-        assignCard(ICG.PLAYER) 
-        assignCard(ICG.COMP)
-    #showDeck()'''
-    
-    for i in range(5):#Five times
-        for playerOn in range (ICG.numPlayers): #giving one card to each player
-            assignCard(playerOn + 1) #this assigns cards to the players
-            #To understand read this nested for comments down to up
-    
-    playerOn = 1
-    while playerOn <= ICG.numPlayers:
-        print("\nIt is "+ ICG.playerName[playerOn] + "'s Turn")
-        showHand(playerOn)
-        scoreHand(playerOn)
-        
-        exchangeHand(playerOn, scoreHand(playerOn))
-        showHand(playerOn)
-        print("End Player " + ICG.playerName[playerOn] + "'s Turn")
-        print("_ " * 15)
-        wait = input ("Pass to Next Player"  + "\n" * 3)
-        playerOn += 1 #it will then go to the next player
-
-    
-
-    '''    
-    showHand(ICG.PLAYER) #It will say you have a ACE,Queen,Jack, 10, King 
-    scoreHand(ICG.PLAYER) #I need to do my exchanging
-    exchangeHand(ICG.PLAYER, scoreHand(ICG.PLAYER)) #this will be playerOn
-    showHand(ICG.PLAYER)
-
-    showHand(ICG.COMP)
-    scoreHand(ICG.COMP)
-    exchangeHand(ICG.COMP, scoreHand(ICG.PLAYER))
-    showHand(ICG.COMP)'''
-    for ICG.playerOn in range (1 ,ICG.numPlayers + 1):
-        #print("Player On: " + str(ICG.playerOn))
-        Arr,Ar2 = Sort(scoreHand(ICG.playerOn))
-        scores = ScorePlayer(Arr,Ar2,ICG.playerOn, scores)
-
-    print(scores)
-    #print(WhoWon(scores))
-    
-    if (ICG.numPlayers == 1):
-        pass
-    elif (ICG.numPlayers == 2):
-        print("Player " + ICG.playerName[WhoWon(0,1,scores) + 1] + " wins") 
-    elif (ICG.numPlayers == 3):
-        print("Player " + ICG.playerName[WhoWon(WhoWon(0,1,scores),2,scores) + 1] + " wins")
-    elif (ICG.numPlayers == 4):
-        print("Player " + ICG.playerName[WhoWon(WhoWon(0,1,scores),WhoWon(2,3,scores),scores) + 1] + " wins") #I don't like this going to try to make it recursive
-        
-def exchangeHand (playerOn, hand): #This should work for any amount of players
-    ar3 = [-1] * 5
-    print(hand)
-    for i in range (5):
-        keepGoing = True
-        while keepGoing:
-            printCard(ICG.cardLoc, hand[i])
-            exchangeStr = input("(Y,N) Would you like to keep " + str(hand[i]) + ": ")
-
-            if (exchangeStr.upper() == "YES" or exchangeStr.upper() == "Y"):
-                ar3[i] = True
-                keepGoing = False
-            elif (exchangeStr.upper() == "NO" or exchangeStr.upper() == "N"):
-                ar3[i] = False
-                keepGoing = False
-            else:
-                print("I don't know what you said") #This series of if's will make sure that the user either said yes or no in the ways that I wa
-    print(ar3) #So now I have an array of [True, True, False, False, True]
-    #What is the point
-
-    for i in range(5):
-        if not (ar3[i]):
-            ICG.cardLoc[hand[i]] = ICG.DECK #this puts the card back into the deck
-            assignCard(playerOn)
-    print("NEW HAND") #DELETE
-            
-def ScorePlayer(Arr,Ar2,playerOn,scores):
-    ''' print("\n") #Delete these print statements
-    print('Arr: ' + str(Arr))
-    print('Ar2: ' + str(Ar2))
-    
-    print ('HIGH CARD: ' +      str(ScoringHand.HighCard (Arr)))
-    print('OnePair: ' +         str(ScoringHand.OnePair(Arr)))
-    print('two pair: '+         str(ScoringHand.TwoPair(Arr)))
-    print('threeofakind: '+     str(ScoringHand.ThreeOfAKind(Arr)))
-    print('straight: '+         str(ScoringHand.Straight(Arr)))
-    print('flush: '+            str(ScoringHand.Flush(Ar2)))
-    print('fullhouse: '+        str(ScoringHand.FullHouse(Arr)))
-    print('fourofakind: '+      str(ScoringHand.FourOfAKind(Arr)))
-    print('straightflush: '+    str(ScoringHand.StraightFlush(Arr,Ar2)))
-    print('royalflush: '+       str(ScoringHand.RoyalFlush(Arr,Ar2))) #Can delete this later'''
-    scores[playerOn -1] = [ScoringHand.HighCard(Arr),
-                           ScoringHand.OnePair(Arr),
-                           ScoringHand.TwoPair(Arr),
-                           ScoringHand.ThreeOfAKind(Arr),
-                           ScoringHand.Straight(Arr),
-                           ScoringHand.Flush(Ar2),
-                           ScoringHand.FullHouse(Arr),
-                           ScoringHand.FourOfAKind(Arr),
-                           ScoringHand.FourOfAKind(Arr),
-                           ScoringHand.StraightFlush(Arr,Ar2),
-                           ScoringHand.RoyalFlush(Arr,Ar2)]    
-    return scores 
-
-def WhoWon(player1,player2,scores):
-    for i in range(10):
-        if (scores[player1][9 - i] > scores[player2][9 - i]):
-            return player1
-        elif (scores[player1][0 - i] < scores[player2][9 - i]):
-            return player2       
-        
-''' def WhoWon(scores): #this assumes that we are using the final values for the hands
-    #Wahat I want it to do is look at the furthest one down then it will return the best player
-    #for p in range(0,2): #I want the range to be from (0, NumPlayers)
-    #       for i in range:
-    #        if (scores[p][0+x] > scores[p][1+x]):
-    #            print("Winwar is player " + str(p)
-    #return p #this is the player
-    #scores[ICG.playerOn][index]
-    for i in range(10):
-        if (scores[0][9 - i] > scores[1][9 - i]):
-            return("Player 1 wins with " + ICG.wonWith[i]))
-        elif (scores[0][0 - i] < scores[1][9 - i]):
-            return("Player 2 wins with " + ICG.wonWith[i]))
-            #This will only work against 2 players
-            #this loop compares Royal flush, then straight flush ect.'''
-
-def Sort(hand): #This makes Arr and Ar2 given hand
-    Arr = [-1] * 5 
-    Ar2 = [-1] * 5 
+def Sort(hand): #given the hand returns its Arr, and Ar2 Arrays 
+    Arr = [-1] * len(hand) #Stands for Rank
+    Ar2 = [-1] * len(hand) #Stands for Suit
     
     for i in range(len(hand)):
-        
         Arr[i] = hand[i] % len(ICG.rankName)
-        if(Arr[i] == 0):
-            Arr[i] = 13
+        if(Arr[i] == 0): #changes ace 0
+            Arr[i] = 13  #to 13
         Arr[i] += 1
         Ar2[i] = hand[i] // len(ICG.rankName)
         
-    Arr.sort()
-    Ar2.sort()
-    return Arr, Ar2 
-    #return ICG.FAKE_HAND,ICG.FAKE_SUIT #Delete
+    Arr.sort() #This sorts them from least to greatest
+    Ar2.sort() #I want that because it simplifies a lot of things when calculating the score of the hand
+    return Arr, Ar2 #This returns a tuple
+
+def exchangeHand (playerOn, hand): #This lets me exchange cards
+    ar3 = [-1] * 5 #This represents a bool Arr that will say if I want to exchange the cards or not #I set to -1 so if it donsn't go allthe way through it will give an error
+    print("In the form of y/n")
+    for i in range (5):
+        keepGoing = True
+        while keepGoing:
+            #printCard(hand[i]) #prints the card you are on in terms of i #DELETE
+            exchangeStr = input("Would you like to keep " + blankOfBlank(hand[i]) +": ") #Hand[i] represents the index in cardLoc
+            if (exchangeStr.upper() == "YES" or exchangeStr.upper() == "Y"):
+                ar3[i] = True  #it will keep this card
+                keepGoing = False #It will go to the next card
+            elif (exchangeStr.upper() == "NO" or exchangeStr.upper() == "N"):
+                ar3[i] = False #it won't keep this card
+                keepGoing = False #It will go to the next Card
+            else:
+                print("I don't know what you said") #prints that I don't understand then restates the confirmation for the card
+                #Since keepGoing = True it will try again on the same card
+    for i in range(5):
+        if not (ar3[i]):#if ar3[i] = False then exchange
+            ICG.cardLoc[hand[i]] = ICG.DECK #It will set the card the player had and send it to the deck
+            assignCard(playerOn) #It will give the player a new card inside the deck
+            
+def ScorePlayer(Arr,Ar2,playerOn,scores): #given Arr and Ar2 will return the scores for playerOn
+    scores[playerOn- 1] = [SH.HighCard(Arr),       #relies on highCard
+                           SH.OnePair(Arr),        #value of the highest pair
+                           SH.TwoPair(Arr),        #value of the highest pair
+                           SH.ThreeOfAKind(Arr),   #value of the highest triplet
+                           SH.Straight(Arr),               #True or False      #ends up looking at high card Anyways
+                           SH.Flush(Ar2),                  #True or False      #ends up looking at high card Anyways
+                           SH.FullHouse(Arr),              #True or False      #ends up looking at high card Anyways
+                           SH.FourOfAKind(Arr),    #value of the highest quadlet
+                           SH.StraightFlush(Arr,Ar2),      #True or False      #ends up looking at high card Anyways
+                           SH.RoyalFlush(Arr,Ar2)]         #True or False      #ends up looking at high card Anyways
+    return scores #FEATURE this could be better if I added the kickers Kicker1, Kicker2, Kicker3, Kicker4 aka lowCard #This will prevent ties even more from happening
+
+def WhoWon(player1,player2,scores): #Given the indexes of players it will tell me who has the better hand
+    lns = len(scores[0]) -1#This may be unnessacary but whatever
+    for i in range(lns+1): #the theory here is that if I look at the scores[][] backwards then it will tell me the most valuable hand, if they are equal then look at the next until it gets to highcard
+                        #if all of them are equal then that would be extreamly rare but I don't have a case for that yet
+        if (scores[player1][lns - i] > scores[player2][lns - i]):
+            return player1
+        elif (scores[player1][lns - i] < scores[player2][lns - i]):
+            return player2 #This function WhoWon is good but I would like it to be recursive
+'''
+def withWhat(playerOn,scores): #I want to say what the player won with for example player 1 wins with Ace High #This is not working
+    word = ""
+    lns = len(scores[0]) - 1
+    for i in range(lns):
+        if (scores[playerOn] != 0 or scores[playerOn] == False):
+            word = (str(ICG.wonWith[i]) + " " + str(ICG.rankName2[scores[playerOn][i]]))
+    return word'''
 
 if __name__ == "__main__":
     main()

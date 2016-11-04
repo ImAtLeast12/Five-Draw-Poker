@@ -1,0 +1,48 @@
+#This lets me have a simple UI to select if they want to compete against
+#real players or the computer
+#Importing modules
+import CardGameLogicBlackbelt as CGL
+import InitilizingCardGameBlackbelt as ICG
+def main():
+    keepGoing = True
+    while keepGoing:
+        response = input(menu()) #response should be either 0 or 1 but it may be somthing else
+        if response == "1": #if they input 1 they want to do player vs player
+            keepGoing = True
+            while keepGoing:
+                keepGoing = numPlayersIsBad(keepGoing) #Loop until they give me good info
+            namePlayers() #This will ask for each of the players names
+            CGL.main() #This will go the bulk of the program
+        elif response == "0": #if they input 0 they want to quit the program
+            print ("Thanks for playing.")
+            keepGoing = False #This gets out of the loop and ends the program
+        else:
+            print ("I don't know what you want to do...") #If the player dosn't enter in a correct value then it will say It dosn't know what to do and ask again
+        print("\n")
+
+def numPlayersIsBad(keepGoing): #needs to be an integer, and needs to be within 1-4 to see if it is good
+    numPlayers = input("Enter # of players (1-4) : ") 
+    if (numPlayers.isnumeric()): #needs to be an integer
+        ICG.numPlayers = int(numPlayers)
+        if (ICG.numPlayers <= 4 and ICG.numPlayers != 0):
+            return False #All of the information is correct so get out of the loop 
+        else:
+            print("Players must be within 1 to 4")
+            return True
+    else:
+        print("I don't know what you want me to do")
+        return True #They have to go to the loop gain
+                    
+def menu (): 
+    print("Welocme to Draw Five poker \n")
+    print("1) Player vs Player")
+    #print("2) Player vs Computer") #Not ready for this yet
+    print("0) Quit\n")
+    return "What do you want to do? "
+
+def namePlayers():
+    for i in range(1,ICG.numPlayers + 1): #go until the last player
+        nameInputed = input("What is the name of player " + str(i) + ": " )  #Whats the name of player 1     
+        #ICG.playerName[i] = nameInputed #the name of player 1 is whatever they input not testing for numeric or not because who cares
+        ICG.playerName.append(nameInputed)
+main()

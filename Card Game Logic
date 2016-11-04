@@ -16,12 +16,16 @@ def main():
     ICG.playerOn = 1 #Start at 1 because 0 is for deck
     while ICG.playerOn <= ICG.numPlayers: #Keep going until I am on the last player
         print("\nIt is "+ ICG.playerName[ICG.playerOn] + "'s Turn") #Display whos turn it is
+        Arr,Ar2 = Sort(scoreHand(ICG.playerOn))         
+        scores = ScorePlayer(Arr,Ar2,ICG.playerOn, scores) #I am putting this here for the purposes of AI it can be ignored if you are just the player because it will be updated anyways
         showHand(ICG.playerOn) #Shows players hand
         exchangeHand(ICG.playerOn, scoreHand(ICG.playerOn)) #exchange hand cards in the players hand
         print("\nNEW HAND") #DELET
         showHand(ICG.playerOn) #show the new hand of the player
         print("End Player " + ICG.playerName[ICG.playerOn] + "'s Turn") 
         print("_ "* 15)
+        Arr,Ar2 = Sort(scoreHand(ICG.playerOn))         #Split them to Arr which focuses on the ranks and Ar2 which focuses on the suit
+        scores = ScorePlayer(Arr,Ar2,ICG.playerOn, scores) #Then using that information I will produce the scores for each player in a 2D array
         ICG.playerOn += 1 #Go to the next player
         if (ICG.playerOn -1 == ICG.numPlayers):
             wait = input ("Pass to Player " + ICG.playerName[ICG.playerOn - ICG.numPlayers] + "\n" * 3) #pass to the first player if you are on the last player
@@ -30,9 +34,7 @@ def main():
     
         #This is the magic that calculates the scores
         #all of the cards are assigned to the correct players in cardLoc
-    for ICG.playerOn in range (1 ,ICG.numPlayers + 1):  #So I need to find all of the players which are from 1 til the #of players
-        Arr,Ar2 = Sort(scoreHand(ICG.playerOn))         #Split them to Arr which focuses on the ranks and Ar2 which focuses on the suit
-        scores = ScorePlayer(Arr,Ar2,ICG.playerOn, scores) #Then using that information I will produce the scores for each player in a 2D array
+
     print (str(scores) + "\n")
     #This if statement is ok for now but my goal is to have this working for 10 players or less
     if (ICG.numPlayers == 1): #If there is only one player then I you already know who won which is the yourself

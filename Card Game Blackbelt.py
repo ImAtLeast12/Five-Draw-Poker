@@ -2,6 +2,7 @@
     basic card game framework
     keeps track of card locations for as many hands as needed
 """
+#so far this is looking pretty nice
 from random import *
 
 NUMCARDS = 52
@@ -16,171 +17,138 @@ rankName = ("Ace", "Two", "Three", "Four", "Five", "Six", "Seven",
 playerName = ("deck", "player", "computer")
 
 
-def clearDeck():
-    print("Location of all cards")
-    print("#" + "\t" + "card" + "\t" + "\t " + "Location")
+def clearDeck(): #The assigns and initalizes all of the cards to deck 
+    for i in range (NUMCARDS):
+        cardLoc[i] = DECK
 
-    for y in range (len(suitName)):
-        for x in range (len(rankName)): 
-            cardIndex = x + (y*13)
-            count = (str(rankName[x]) + " of " + str(suitName[y]))
-            count = count.__len__()
-            if (count < 8):
-                countTabs = 3
-            elif(count < 16):
-                countTabs = 2
-            elif(count < 24):
-                countTabs = 1
-                
-            tabs = countTabs * "\t"
-                
-            cardLoc[cardIndex] = (str(cardIndex)) + "\t" +  rankName[x] + " of " + suitName[y] + tabs + "deck"
-
-            
-def assignCard(playerIndex):
+def assignCard(playerIndex): #This assigns a random card to whichever player
     keepGoing = True
     while keepGoing:
-        i = random()
-        i *= NUMCARDS 
-        i = int (i)
-        if (cardLoc[i][(-1 * (playerName[0].__len__())):] == playerName[0]):
-            cardLoc[i] = cardLoc[i][:(-1* (playerName[0].__len__()))]
-            cardLoc[i] += playerName[playerIndex] 
-            keepGoing = False
-        
-def showDeck():
+        i = int (random() * NUMCARDS)
+        if (cardLoc[i] == DECK): 
+            cardLoc[i] = playerIndex 
+            keepGoing = False #I may need to check to see if all of the cards are deck first but that is a later mater
+
+def showDeck(): #shows the location for all of the cards
+    print("Location of all cards")
+    print("#" + "\t" + "card" + "\t" + "\t " + "Location")
     for i in range(NUMCARDS):
-        print(cardLoc[i])
- 
-def showHand(playerIndex):
-    hand = []
+        print(printCard(cardLoc,i))
+    print("\n")
+
+def showHand(playerIndex): #
     for i in range(NUMCARDS): 
-        if (cardLoc[i][(-1 * (playerName[playerIndex].__len__())):] == playerName[playerIndex]):
-            print(cardLoc[i])
+        if (cardLoc[i] == playerIndex):
+            print(printCard(cardLoc,i)) 
+    print("\n")
+
+def printCard(cardLoc, i): #prints the card you are looking for assuming you give the array ardlocation and it's 
+    for y in range(len(suitName)):
+        for x in range (len(rankName)):
+            if (x+(y *13) == i):
+                return ('{:3}  {:5} of {:10} {}'.format(str(i),str(rankName[x]),str(suitName[y]),str(playerName[cardLoc[i]])))
             
-            if (cardLoc[i][1:2] == "\t"):
-                hand.append(i) #= cardLoc[i][:1]#either is one digit 
-            else:
-                hand.append(i) #= cardLoc[i][:2]#or 2 digits
-    return hand
-
-def main(): #What I want is to make a card game
-            #however what cardgame should I make
-            #Poker (hard), 21 mabey, go fish, 
-    
-    clearDeck()    
-    for i in range(5): #each player gets five randomly assigned cards
-        assignCard(PLAYER)
+def main():
+    clearDeck() #This assigns all of the cards to deck
+    for i in range(5): #This deals out 5 cards to the players
+        assignCard(PLAYER) 
         assignCard(COMP)
-    #The Player can change their hand
-        #get rid of cards ("0,1,2,3,4") or just ("keep")
-        #assign a new card for the ones they took out
-    #Then the computer can change their cards
-        #the computer will need to find a value of what cards are good
-        #something similar to what the player did
-    #Then scoring the cards
-        #see who beat who
+    showDeck() #This prints the deck
+    showHand(PLAYER) #This prints the players hand
+    showHand(COMP)  #This prints the computers hand
 
-def Score(playerIndex): #This needs the input of whos hand you are on
 
-    Sort = []
-    i = 1
-    for i in range(len(playerName)):
-        hand = showHand(i) #this stores the hand you are working on for which ever player you are on
-        Sort.append(Sort(hand))
-    
-    Scoring = [HighCard(hand), OnePair(hand), TwoPair(hand),ThreeOfAKind(hand), Straight(hand),Flush(hand),FullHouse(hand),FourOfAKind(hand),StraightFlush(hand),RoyalFlush(hand)]
-    return Scoring
+
+
+
+
+
 
     
-def Sort(hand):
-    #hand = [2,16,31,49,50]
-    #look at card Location and get rid of the "index, of suit\t\tplayer"
+def Sort(hand): #this sorts the hand and outputs a tuple Arr,Ar2 #Arr is a list of the hand sorted by their rank, #Ar2 is a list of the hand sored by suit
+#Sort allows me to use Arr, and Ar2 in the scoring functions
     Arr = [-1] * 5
     Ar2 = [-1] * 5
     
-    for y in range (len(hand)): #
-        for x in range (len(rankName)): #
-            if (cardLoc[hand[y]].find(rankName[x]) != -1): # If it finds a match        
-                if (x == 0): #
-                    x = 13   #
-                Arr[y] = x + 1  #All of this works I think I just need to sort it from least to greatest
+    for y in range (len(hand)): 
+        for x in range (len(rankName)): 
+            if (cardLoc[hand[y]].find(rankName[x]) != -1): 
+                if (x == 0): 
+                    x = 13   
+                Arr[y] = x + 1  
     Arr.sort()
 
     for y in range (len(hand)):
         for x in range (len(suitName)):
             if (cardLoc[hand[y]].find(suitName[x]) != -1):
-                Ar2[y] = x #this will tell me what suit they are
+                Ar2[y] = x 
 
-    #I need to do the same thing but for Hearts, Diamonds, Spades, and Clubs
-                
-    return Arr, Ar2 #This gives me my precious Arr, Ar2 So that I can use them in the Scoring
+               
+    return Arr, Ar2
 
-def HighCard (Arr,Ar2):
+
+
+
+
+def HighCard (Arr): #Given Arr, Highcard finds the highest card
     
-    #hand = [2,16,31,49,50]                             BEFORE
-    #Arr = ["Three", "Four", "Six", "Jack", "Queen"]    
-    #What I want is = [3,4,6,11,12]                     AFTER
     HighCard = Arr[4]
     return HighCard
             
-                
-
-    #scoring = [-1] * 10 #everything = -1 in scoring 2d array
-    #scoring = [scoring] * (len(playerName) - 1) #this will make a 2d list of length 9 for (High, 1 Pair, 2 Pair, 3 of a Kind, Straight, Flush, Full house, Four of a Kind, Straight Flush, Royal Flush)
-
-    #scoring[0] = HighCard #Scoring = [12, -1, -1, -1, -1, -1, -1, -1, -1, -1]
-    #I should have a tuple for all of the hand combinations for what ever player I am on scoring[0] = [Q,0,0,0,0,0,0,0,0,0]
-    #So when I am done the winner will be the one that has the highest 1
-
-    
-
-
 #1 PAIR
-def OnePair (hand,Arr,Ar2):
-    #USE Arr[] because it is ordered from greatest to least
+def OnePair (Arr): #Given Arr OnePair finds if they have any pairs #only keeps the highest one
     OnePair = 0
     for i in range (4):
         if (Arr[0 + i] == Arr[1 + i]):
             OnePair = Arr[0 + i]
             
-    return OnePair #This will tell if there is a pair and what kind of pair it was
-    
+    return OnePair 
     
 #2 PAIR
-def TwoPair (hand,Arr,Ar2):
+def TwoPair (Arr): #Given Arr TwoPair finds if they have two pairs #(Ex (5,5,7,A,A))
     TwoPair = 0
     if Arr[0] == Arr[1]:
         if Arr[2] == Arr[3]:
-            TwoPair = Arr[3]
+            TwoPair = Arr[3]  #Ex(5,5,6,6,6) or (5,5,6,6,J)
         if Arr[3] == Arr[4]:
-            TwoPair = Arr[4]
+            TwoPair = Arr[4]  #Ex(5,5,5,K,K) or (5,5,7,K,K)
     if Arr[1] == Arr[2]:
-        if Arr[3] == Arr[4]:
-            TwoPair = Arr[4]
+        if Arr[3] == Arr[4]:  
+            TwoPair = Arr[4]  #Ex(J,J,J,A,A) or (5,J,J,A,A)
     return TwoPair
 
     
 #3 OF A KIND
-def ThreeOfAKind (hand,Arr,Ar2):
+def ThreeOfAKind (Arr): #Given Arr ThreeOfAKind finds if they have 3 of the same in a list
+    #Since Arr is sorted by Least to Greatest I only have so cycle a few times
     ThreeOfAKind = 0
     for i in range(3):
         if (Arr[0 + i] == Arr[1 + i]):
             if (Arr[1 + i] == Arr[2 + i]):
                 if (Arr[2 + i] == Arr [3 + i]):                   
-                    ThreeOfAKind = Arr[0 + i]
+                    ThreeOfAKind = Arr[0 + i] #Ex(3,3,3,10,10) or (A,3,3,3,3)
     return ThreeOfAKind
 
 #STRAIGHT
-def Straight (hand,Arr,Ar2):
+def Straight (Arr):
     Straight = 0
+
+    if(Arr[0] + 1 == Arr[1]):
+        if(Arr[1] + 1 == Arr[2]):
+            if(Arr[2] +1 == Arr[3]):
+                if(Arr[3] + 1 == Arr[4])
+                Straight = Arr[4]
+                    Straight = HighCard(Arr)
+
+    
     if (Arr[0] + 1== Arr[1]):
         if (Arr[1] + 1== Arr[2]):
             if (Arr[2] + 1 == Arr[3]):
-                if (Arr[3] + 1 == Arr[4]):
+                if (Arr[3] + 1 == Arr[4]): #Ex(10,J,Q,K,A) or (2,3,4,5,6)
                     #                             [         ]         [         ]
-                    #this only works if it is from 0,1,2,3,4,5,6,7,8,9,10,J,Q,K,A
+                    #this only works if it is from  0,1,2,3,4,5,6,7,8,9,10,J,Q,K,A
                     Straight = Arr[4]
+                    
     
 
     #This works for the others that wouldn't
@@ -189,24 +157,27 @@ def Straight (hand,Arr,Ar2):
             if(Arr[2] == 12): 
                 if(Arr[3] == 13): 
                     if(Arr[4] == 14): 
-                        print("good 2 high")
-                        Straight = 2
+                        print("good 2 high") 
+                        Straight = 2 #Ex(2,J,Q,K,A)
                         
         if(Arr[1] == 3): 
             if(Arr[2] == 12):
                 if(Arr[3] == 13):
                     if(Arr[4] == 14): 
                         print("good 3 high")
-                        Straight = 3
+                        Straight = 3 #Ex(2,3,Q,K,A)
             if(Arr[2] == 4):
                 if(Arr[3] == 13): 
                     if(Arr[4] == 14): 
                         print("good 4 high")
-                        Straight = 4
+                        Straight = 4 #Ex(2,3,4,K,A)
                 if(Arr[3] == 5):
                     if(Arr[4] == 14): 
                         print("good 5 high")
-                        Straight = 5
+                        Straight = 5 #Ex(2,3,4,5,A)
+
+
+    
     return Straight
                 
     
@@ -218,17 +189,17 @@ def Straight (hand,Arr,Ar2):
 
     
 #FLUSH
-def Flush (hand,Arr,Ar2):
-    flush = False
+def Flush (Ar2): #Given Ar2 Flush finds if all of the ones are the same suit 
+    flush = False 
     if (Ar2[0] == Ar2[1]):
         if (Ar2[1] == Ar2[2]):
             if (Ar2[2] == Ar2[3]):
                 if (Ar2[3] == Ar2[4]):
-                    flush = True
+                    flush = True #Ex(0,0,0,0,0)
     return flush
     
 #FULL HOUSE
-def FullHouse(hand,Arr,Ar2):
+def FullHouse(Arr):
     FullHouse = 0
     if Arr[0] == Arr[1]:
         if Arr[1] == Arr[2]:
@@ -240,7 +211,7 @@ def FullHouse(hand,Arr,Ar2):
     return FullHouse
     
 #FOUR OF A KIND
-def FourOfAKind (hand):
+def FourOfAKind (Arr):
     FourOfAKind = 0
     for i in range(2):
         if (Arr[0 + i] == Arr[1 + i]):
@@ -250,25 +221,18 @@ def FourOfAKind (hand):
     return FourOfAKind
 
 #STRAIGH FLUSH
-def StraightFlush (hand):
+def StraightFlush (Arr,Ar2):
     StraightFlush = False
     if Straight(hand):
         if Flush(hand):
             StraightFlush = True
     return StraightFlush
     
-    #return (Straight(hand) and Flush(hand))
     
 #ROYAL FLUSH
-def RoyalFlush (hand):
+def RoyalFlush (Arr,Ar2):
     RoyalFlush = False
     if (StraightFlush(hand)):
             if (HighCard(hand) == 14):
                 RoyalFlush = True
     return RoyalFlush
-    #return (StraightFlush(hand) and HighCard == 14)        #this will return true if hand was Straight, Flush, and HighCard
-                                                            #Else it will return False
-
-
-
-

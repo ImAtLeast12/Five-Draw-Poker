@@ -28,6 +28,138 @@ def main():
                 
         showHand(ICG.playerOn) #Shows players hand
         exchangeHand(ICG.playerOn, scoreHand(ICG.playerOn)) #exchange hand cards in the players hand
+
+
+
+        #This is where I need to exchange hand for the computer
+        #So far I have that it knows what the best score is
+        #So given that information it needs to decide which is the best option with its hand
+        #Assume Arr works as normaly
+        #Assume Ar2 works as normaly
+
+
+        #make a function called exchangeCompHand(playerOn,hand)
+        #   This will borrow elements from exchangeHand(playerOn, hand)
+        #   Diffrences obvoiously are that the computer can't have any input
+        #   So it will have to decide for it's self how to handle it
+
+        #Goals
+        #Get rid of inputs
+    
+        
+'''def exchangeHand (playerOn, hand): #This lets me exchange cards
+    ar3 = [-1] * 5 #This represents a bool Arr that will say if I want to exchange the cards or not #I set to -1 so if it donsn't go allthe way through it will give an error
+    print("In the form of y/n")
+    for i in range (5):
+        keepGoing = True
+        while keepGoing:
+            #printCard(hand[i]) #prints the card you are on in terms of i #DELETE
+            exchangeStr = input("Would you like to keep " + blankOfBlank(hand[i]) +": ") #Hand[i] represents the index in cardLoc
+            if (exchangeStr.upper() == "YES" or exchangeStr.upper() == "Y"):
+                ar3[i] = True  #it will keep this card
+                keepGoing = False #It will go to the next card
+            elif (exchangeStr.upper() == "NO" or exchangeStr.upper() == "N"):
+                ar3[i] = False #it won't keep this card
+                keepGoing = False #It will go to the next Card
+            else:
+                print("I don't know what you said") #prints that I don't understand then restates the confirmation for the card
+                #Since keepGoing = True it will try again on the same card               
+    for i in range(5):
+        if not (ar3[i]):#if ar3[i] = False then exchange
+            ICG.cardLoc[hand[i]] = ICG.DECK #It will set the card the player had and send it to the deck
+            assignCard(playerOn) #It will give the player a new card inside the deck'''
+            
+def exchangeCompHand (playerOn, hand): #This lets me exchange cards
+    ar3 = [-1] * 5 #The represents true or false which cards you are going to keep
+
+
+
+    #INSERT CODE THAT FINDS WHAT CARDS TO KEEP
+    '''PSUDOCODE Herystic Algrithm
+
+       if (this is a flush) or (this a straight): # < - - - This is what I want to do it looks cleaner
+           ar3 = [True] * 5
+       elif (this is a full house):
+           ar3 = [True] * 5
+       elif (this is a two pair):
+           ar3 = [True] * 5
+       elif (this is a pair):
+           keep the good cards
+           if (there is a diffrent pair):
+               make a copy of the original aray but take out the ones that matched
+               if (there is a pair):
+                  keep the other good cards
+          keep all of the cards that match the pairs value
+       elif (this is close to a straight):
+          keep the good cards
+       elif (this is close to getting a flush):
+          keep the good cards
+       else:
+          maximizeTheHighCards()
+        
+
+
+
+       if the this is a royal flush
+           keep all of the cards
+       elif this is a straight flush
+           keep all of the cards
+       elif this is a full house
+           keep all of the cards
+       elif this is a flush
+           keep all of the cards
+       elif this is a straight
+           keep all of the cards
+       elif this is a two pair
+           keep all of the cards
+
+       If any of these trigger then keep all of the cards because you shouldn't waste your hand because it is very noice
+       
+       If any of these trigger then keep all that match 
+       elif this is a four of a kind keep all of the cards that match your four of a kind
+       elif this is a three of a kind keep all of the cards that match
+       elif this is a pair keep all of the cards that match
+
+       If none of these trigger then you want to see if you where close to getting one of the above
+       closeToGettingStraight()
+       closeToGettingFlush()
+
+       Harder program is on the bottom
+       closeToGettingFullHouse() #this needs to be a 2Pair already
+       maximizeHighCards() #this goes for the ones that havn't been selected yet and sees if they are higher than a threshold of 10 if it is higher keep it else don't
+
+       if the this is a royal flush
+           keep all of the cards
+       elif this is a straight flush
+           keep all of the cards
+       elif this is a full house
+           keep all of the cards
+       elif this is a flush
+           keep all of the cards
+       elif this is a straight
+           keep all of the cards
+       elif this is a two pair
+           keep all of the cards
+
+       elif(closeToGettingStraight())
+       
+       elif(closeToGettingFlush()) 
+
+       Harder program is on the bottom
+       closeToGettingFullHouse() #this needs to be a 2Pair already
+       maximizeHighCards() #this goes for the ones that havn't been selected yet and sees if they are higher than a threshold of 10 if it is higher keep it else don't
+    '''
+    
+    #At this point it should already know what are the best cards to choose
+    for i in range(5):
+        if not (ar3[i]):#if ar3[i] = False then exchange
+            ICG.cardLoc[hand[i]] = ICG.DECK #It will set the card the player had and send it to the deck
+            assignCard(playerOn) #It will give the player a new card inside the deck
+
+
+
+            
+        
         print("\nNEW HAND") #DELET
         showHand(ICG.playerOn) #show the new hand of the player
         print("End Player " + ICG.playerName[ICG.playerOn] + "'s Turn") 
@@ -176,14 +308,6 @@ def WhoWon(player1,player2,scores): #Given the indexes of players it will tell m
             return player1
         elif (scores[player1][lns - i] < scores[player2][lns - i]):
             return player2 #This function WhoWon is good but I would like it to be recursive
-'''
-def withWhat(playerOn,scores): #I want to say what the player won with for example player 1 wins with Ace High #This is not working
-    word = ""
-    lns = len(scores[0]) - 1
-    for i in range(lns):
-        if (scores[playerOn] != 0 or scores[playerOn] == False):
-            word = (str(ICG.wonWith[i]) + " " + str(ICG.rankName2[scores[playerOn][i]]))
-    return word'''
 
 if __name__ == "__main__":
     main()

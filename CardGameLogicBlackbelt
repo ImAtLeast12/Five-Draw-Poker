@@ -77,78 +77,94 @@ def exchangeCompHand (playerOn, hand): #This lets me exchange cards
     #INSERT CODE THAT FINDS WHAT CARDS TO KEEP
     '''PSUDOCODE Herystic Algrithm
 
-       if (this is a flush) or (this a straight): # < - - - This is what I want to do it looks cleaner
-           ar3 = [True] * 5
-       elif (this is a full house):
-           ar3 = [True] * 5
-       elif (this is a two pair):
-           ar3 = [True] * 5
-       elif (this is a pair):
-           keep the good cards
-           if (there is a diffrent pair):
-               make a copy of the original aray but take out the ones that matched
-               if (there is a pair):
-                  keep the other good cards
-          keep all of the cards that match the pairs value
-       elif (this is close to a straight):
-          keep the good cards
-       elif (this is close to getting a flush):
-          keep the good cards
-       else:
-          maximizeTheHighCards()
-        
+   if (this is a flush) or (this a straight): # < - - - This is what I want to do it looks cleaner
+       ar3 = [True] * 5
+   elif (this is a full house):
+       ar3 = [True] * 5
+   elif (this is a two pair):
+       ar3 = [True] * 5
+   elif (this is a pair):
+       keep the good cards
+       if (there is a diffrent pair):
+           make a copy of the original aray but take out the ones that matched
+           if (there is a pair):
+              keep the other good cards
+      keep all of the cards that match the pairs value
+   elif (this is close to a straight):
+      keep the good cards
+   elif (this is close to getting a flush):
+      keep the good cards
+   else:
+      maximizeTheHighCards()
 
 
+if (straight or flush):
+    keep = [True] * 5
 
-       if the this is a royal flush
-           keep all of the cards
-       elif this is a straight flush
-           keep all of the cards
-       elif this is a full house
-           keep all of the cards
-       elif this is a flush
-           keep all of the cards
-       elif this is a straight
-           keep all of the cards
-       elif this is a two pair
-           keep all of the cards
+elif(len(findanyPairs(arr))!= 0):
+    similar = findanypairs(arr)
+    keepSimilars(similar)
 
-       If any of these trigger then keep all of the cards because you shouldn't waste your hand because it is very noice
-       
-       If any of these trigger then keep all that match 
-       elif this is a four of a kind keep all of the cards that match your four of a kind
-       elif this is a three of a kind keep all of the cards that match
-       elif this is a pair keep all of the cards that match
+elif (closeToStraight()):
 
-       If none of these trigger then you want to see if you where close to getting one of the above
-       closeToGettingStraight()
-       closeToGettingFlush()
+elif (clostToFlush()):
+    
 
-       Harder program is on the bottom
-       closeToGettingFullHouse() #this needs to be a 2Pair already
-       maximizeHighCards() #this goes for the ones that havn't been selected yet and sees if they are higher than a threshold of 10 if it is higher keep it else don't
 
-       if the this is a royal flush
-           keep all of the cards
-       elif this is a straight flush
-           keep all of the cards
-       elif this is a full house
-           keep all of the cards
-       elif this is a flush
-           keep all of the cards
-       elif this is a straight
-           keep all of the cards
-       elif this is a two pair
-           keep all of the cards
+    
 
-       elif(closeToGettingStraight())
-       
-       elif(closeToGettingFlush()) 
+  '''
 
-       Harder program is on the bottom
-       closeToGettingFullHouse() #this needs to be a 2Pair already
-       maximizeHighCards() #this goes for the ones that havn't been selected yet and sees if they are higher than a threshold of 10 if it is higher keep it else don't
-    '''
+
+def closeToStraight(arr): #This will go until it gets to the desired length
+    mLength = 3 #This is the minimum length that I want it to reach so if the computer has a straight of length 3 then it will say to keep those cards
+    oLength = len(arr)
+    nLength = oLength
+    while(nLength > mLength):
+        sIndex = 0
+        while(sIndex + nLength <= oLength):
+            ar4 = arr[0+sIndex:nLength + sIndex]
+            if(Straight(ar4)): #The program fond a straight
+
+                '''firstIndex = 0+sIndex
+                lastIndex = nLength + sIndex
+                w = []
+                while (firstIndex!=lastIndex):
+                    w.append(firstIndex)
+                    firstIndex +=1
+                print(w)'''
+                
+                return ar4#This is good but I would rather return the indexes of the array not the values them selves
+            sIndex += 1
+        nLength -= 1
+
+    #This only returns the values not the indexes
+    
+
+def Straight(arr): #ADD THIS TO THE SCORING HAND THIS WORKS PERFECTLY
+    straight = False
+    a = []
+    a.append(14)
+    for i in range(14): #This draws out an endless straight (14,2,3,4,5,6,7,8,9,10,11,12,13,14)
+        a.append(2+i)   #Notice how it starts with 14 this is to include aces
+    for i in range(len(a)-len(arr)):
+        if (a[0+i:len(arr) + i] == arr): #If that matches with our original array given then it is a straight
+            straight = True
+    return straight
+
+def findAnyPairs(arr):
+    similarIndex = []
+    for i in range(len(arr) - 1):
+        if (arr[0+i] == arr[1+i]):
+            similarIndex.append(0+i)
+    return similarIndex
+    
+def keepSimilars(similar):
+    keep = [-1] * 5
+    for i in range(len(similar)):
+        keep[similar[i]] = True
+        keep[similar[i] + 1] = True
+    return keep
     
     #At this point it should already know what are the best cards to choose
     for i in range(5):

@@ -47,17 +47,16 @@ def ThreeOfAKind (Arr): #(XXXyz) or (xYYYz) or (xyZZZ)
     return ThreeOfAKind
 
 #STRAIGHT 
-def Straight (Arr): #(2,3,4,5,6) til (10,J,Q,K,A)
-    Straight = False
-    
-    a = [-1] * (len(ICG.rankName) + 1)
-    for i in range(len(ICG.rankName) + 1): 
-        a[i] = i + 1 
-
-    for i in range(len(ICG.rankName) - 3):
-        if (a[0+i:5+i] == Arr): 
-            Straight = True
-    return Straight
+def Straight(arr):
+    straight = False
+    a = []
+    a.append(14)
+    for i in range(14): #This draws out an endless straight (14,2,3,4,5,6,7,8,9,10,11,12,13,14)
+        a.append(2+i)   #Notice how it starts with 14 this is to include aces
+    for i in range(len(a)-len(arr)):
+        if (a[0+i:len(arr) + i] == arr): #If that matches with our original array given then it is a straight
+            straight = True
+    return straight
 
 #FLUSH Ar2 
 def Flush (Ar2): #(XXXXX)

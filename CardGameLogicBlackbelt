@@ -8,29 +8,34 @@ import InitilizingCardGameBlackbelt as ICG
 def main():
     scores = [[-1 for i in range(len(ICG.wonWith))] for j in range(ICG.numPlayers)] #make a 2d array called scores[#posibleHands][#players]
     clearDeck() #put all of the cards into the deck, none are any of the players
-    
+    #ShuffleCards()
     for i in range(5): #give 5 cards to everyone playing this will be their hand
         for playerOn in range (1,ICG.numPlayers + 1): 
             assignCard(playerOn) 
-    
     ICG.playerOn = 1 #Start at 1 because 0 is for deck
     while ICG.playerOn <= ICG.numPlayers: #Keep going until I am on the last player
+        #PrintName()
         print("\nIt is "+ ICG.playerName[ICG.playerOn] + "'s Turn") #Display whos turn it is
-
+        #ScoreHand()
         Arr,Ar2 = Sort(scoreHand(ICG.playerOn))         
         scores = ScorePlayer(Arr,Ar2,ICG.playerOn, scores) #I am putting this here for the purposes of AI it can be ignored if you are just the player because it will be updated anyways
+        #PrintScores()
         print (scores) #KEEP FOR DEBUGING
-        for i in range(len(ICG.wonWith)):
+        #Print what their best hand is
+        for i in range(len(ICG.wonWith)): 
             #print (scores[ICG.playerOn-1][i])
             if (scores[ICG.playerOn-1][i] != 0):
                 print(ICG.wonWith[9-i]) #This tells me what they won with, i.e HighCard or Royal Flush
                 print(scores[ICG.playerOn -1][i]) #This tells me what the type of card won with is i.e 13 = king
-                
+        #ShowHand()
         showHand(ICG.playerOn) #Shows players hand
+        #ExchangeHand
         exchangeHand(ICG.playerOn, scoreHand(ICG.playerOn)) #exchange hand cards in the players hand
-
-
-
+        '''if (isComp[ICG.playerOn]):
+            exchangeComputerHand()
+        else:
+            exchangePlayerHand()'''
+        
         #This is where I need to exchange hand for the computer
         #So far I have that it knows what the best score is
         #So given that information it needs to decide which is the best option with its hand
@@ -51,12 +56,15 @@ def main():
 
 
             
-        
+        #PrintNewHand()
         print("\nNEW HAND") #DELET
+        #ShowHand()
         showHand(ICG.playerOn) #show the new hand of the player
-        print("End Player " + ICG.playerName[ICG.playerOn] + "'s Turn") 
+        #EndPlayersTurn
+        print("End Player " + ICG.playerName[ICG.playerOn] + "'s Turn")
+        #Add Spaces()
         print("_ "* 15)
-        
+        #ScorePlayer()
         Arr,Ar2 = Sort(scoreHand(ICG.playerOn))         #Split them to Arr which focuses on the ranks and Ar2 which focuses on the suit
         scores = ScorePlayer(Arr,Ar2,ICG.playerOn, scores) #Then using that information I will produce the scores for each player in a 2D array
 
@@ -65,7 +73,8 @@ def main():
             if (scores[ICG.playerOn-1][i] != 0):
                 print(ICG.wonWith[9-i]) #This tells me what they won with, i.e HighCard or Royal Flush
                 print(scores[ICG.playerOn -1][i]) #This tells me what the type of card won with is i.e 13 = king
-        
+
+        #GoToNextPlayer()
         ICG.playerOn += 1 #Go to the next player
         if (ICG.playerOn -1 == ICG.numPlayers):
             wait = input ("Pass to Player " + ICG.playerName[ICG.playerOn - ICG.numPlayers] + "\n" * 3) #pass to the first player if you are on the last player
@@ -75,7 +84,45 @@ def main():
         #This is the magic that calculates the scores
         #all of the cards are assigned to the correct players in cardLoc
 
+
+    #When done with the loop I will be Scoring the players
+            
     print (str(scores) + "\n")
+
+    
+
+    #scores = [[14,0,0,0,14,0,1,0,0,1,1],[0,1,2,3,4,5,0,0,0,0,0]] #my array
+    '''winners = ScoringPlayersForReal(scores) #this makes the 2d lists into a 1d list
+    print(winners)
+    theWinnerIndex = (winners.index(max(winners)) + 1)
+    print(ICG.playerName[theWinnerIndex])
+    print(withWhat(theWinnerIndex-1,scores))
+
+    
+    print(winners.index(max(winners))) #this gives the index of the maximum value hint hint nudge nudge giving the winner as an index
+    print()'''
+
+
+    if (ICG.numPlayers == 1):
+        pass
+    else:
+        
+        #ScoringPlayersForReal Replacing ScoringPlayersForReal
+        evaluateScores = Evaluate(scores)
+        #print(evaluateScores)
+        theWinnerIndex = (evaluateScores.index(max(evaluateScores)) + 1)
+        #print(ICG.playerName[theWinnerIndex]) #Kyle
+        #print(withWhat(theWinnerIndex-1,scores)) #Three fo a Kind
+        print(ICG.playerName[theWinnerIndex] + " wins with " + withWhat(theWinnerIndex-1,scores))
+        
+    
+    
+    
+    
+
+
+    '''    
+    
     #This if statement is ok for now but my goal is to have this working for 10 players or less
     if (ICG.numPlayers == 1): #If there is only one player then I you already know who won which is the yourself
         winner = ICG.playerName[1]
@@ -90,7 +137,7 @@ def main():
         winner = WhoWon(WhoWon(0,1,scores),WhoWon(2,3,scores),scores)
         print("Player: " + ICG.playerName[winner + 1] + " wins with " + withWhat(winner,scores))
         #This ends up having an orderly patern like a bracket style compitition to find the winner
-
+    '''
 
 
 
@@ -346,19 +393,19 @@ def WhoWon(player1,player2,scores): #Given the indexes of players it will tell m
         elif (scores[player1][lns - i] < scores[player2][lns - i]):
             return player2 #This function WhoWon is good but I would like it to be recursive
 
-def ScoringPlayersForReal(scores): #This is my updated who won function which should work
+def Evaluate(scores): #This is my updated who won function which should work
     winers = [] #Just make sure that it dosn't try to look for only 1 player then it won't work
     for p in range(2):
         total = 0
         for e in range(10):
             total += scores[p][e]*10**e
-            print(total)
+            #print(total)
         winers.append(total)
     return winers 
 
 
 '''#When calling
-x = [[14,0,0,0,14,0,1,0,0,1,1],[0,1,2,3,4,5,0,0,0,0,0]] #my array
+scores = [[14,0,0,0,14,0,1,0,0,1,1],[0,1,2,3,4,5,0,0,0,0,0]] #my array
 ScoringPlayersForReal(ICG.Scores) #this makes the 2d lists into a 1d list
 s.index(max(s)) #this gives the index of the maximum value hint hint nudge nudge giving the winner as an index
 '''

@@ -47,6 +47,60 @@ def main():
         #Get rid of inputs
     
         
+
+
+
+            
+        
+        print("\nNEW HAND") #DELET
+        showHand(ICG.playerOn) #show the new hand of the player
+        print("End Player " + ICG.playerName[ICG.playerOn] + "'s Turn") 
+        print("_ "* 15)
+        
+        Arr,Ar2 = Sort(scoreHand(ICG.playerOn))         #Split them to Arr which focuses on the ranks and Ar2 which focuses on the suit
+        scores = ScorePlayer(Arr,Ar2,ICG.playerOn, scores) #Then using that information I will produce the scores for each player in a 2D array
+
+        for i in range(len(ICG.wonWith)):
+            #print (scores[ICG.playerOn-1][i])
+            if (scores[ICG.playerOn-1][i] != 0):
+                print(ICG.wonWith[9-i]) #This tells me what they won with, i.e HighCard or Royal Flush
+                print(scores[ICG.playerOn -1][i]) #This tells me what the type of card won with is i.e 13 = king
+        
+        ICG.playerOn += 1 #Go to the next player
+        if (ICG.playerOn -1 == ICG.numPlayers):
+            wait = input ("Pass to Player " + ICG.playerName[ICG.playerOn - ICG.numPlayers] + "\n" * 3) #pass to the first player if you are on the last player
+        else:
+            wait = input ("Pass to Player " + ICG.playerName[ICG.playerOn] + "\n" * 3) #otherwise pass to the next player
+    
+        #This is the magic that calculates the scores
+        #all of the cards are assigned to the correct players in cardLoc
+
+    print (str(scores) + "\n")
+    #This if statement is ok for now but my goal is to have this working for 10 players or less
+    if (ICG.numPlayers == 1): #If there is only one player then I you already know who won which is the yourself
+        winner = ICG.playerName[1]
+        print("Player: " + winner + " wins")
+    elif (ICG.numPlayers == 2): #If there is two players then I decide who won by giving the indexes 0 and 1 (in the index of scores) 
+        winner = WhoWon(0,1,scores)
+        print("Player: " + ICG.playerName[winner + 1] + " wins with " + withWhat(winner,scores))
+    elif (ICG.numPlayers == 3):
+        winner = WhoWon(WhoWon(0,1,scores),2,scores)
+        print("Player: " + ICG.playerName[winner + 1] + " wins with " + withWhat(winner,scores))
+    elif (ICG.numPlayers == 4):
+        winner = WhoWon(WhoWon(0,1,scores),WhoWon(2,3,scores),scores)
+        print("Player: " + ICG.playerName[winner + 1] + " wins with " + withWhat(winner,scores))
+        #This ends up having an orderly patern like a bracket style compitition to find the winner
+
+
+
+
+
+
+
+
+
+
+
 '''def exchangeHand (playerOn, hand): #This lets me exchange cards
     ar3 = [-1] * 5 #This represents a bool Arr that will say if I want to exchange the cards or not #I set to -1 so if it donsn't go allthe way through it will give an error
     print("In the form of y/n")
@@ -116,6 +170,32 @@ elif (clostToFlush()):
   '''
 
 
+
+def flush (start, end, arr): #This appears to work Need to put this into the Schoring hand
+    if (start == len(arr)-1 or start == end):
+        return True
+    elif (arr[start] == arr[start+1]):
+        return flush(start +1,end,arr)
+    else:
+        return False #Since I am adding this I will also have to change the 
+
+def closeToFlush(arr):
+    mLength = 3
+    oLength = len(arr)
+    nLength = oLength
+    while(nLength >= mLength):
+        sIndex = 0
+        while(sIndex + nLength <= oLength):
+            #One problem is that the array that I need to send should be ar4 the one that I did the fancy thing to to make it choose from start to the end
+            if (SH.Flush(sIndex,nLength,arr)): #If the array send was a flush 
+                flushIndexes = []
+                for i in range(nLength):
+                    flushIndexes.append(sIndex+i)
+                return flushIndexes #then send the indexes that where good            
+            sIndex += 1
+        nLength -= 1
+
+
 def closeToStraight(arr): #This will go until it gets to the desired length
     mLength = 3 #This is the minimum length that I want it to reach so if the computer has a straight of length 3 then it will say to keep those cards
     oLength = len(arr)
@@ -132,12 +212,14 @@ def closeToStraight(arr): #This will go until it gets to the desired length
             sIndex += 1
         nLength -= 1
 
-def findAnyPairs(arr):
+def findAnyPairs(arr): #These are sorted from least to greatest so if there is a pair then it will be next to each other
     similarIndex = []
     for i in range(len(arr) - 1):
         if (arr[0+i] == arr[1+i]):
-            similarIndex.append(0+i)
-    return similarIndex
+            similarIndex.append(0+i) #it adds it to the ones that are the same
+            similarIndex.append(1+i)
+    similarIndex = list(set(similarIndex)) #I need to get rid of the doubles that I will have
+    return similarIndex #This is great because it can do pair, 2 pair, 3 of a kind, full house, and 4 of a kind all in one function
     
 def keepSimilars(similar):
     keep = [-1] * 5
@@ -153,47 +235,6 @@ def keepSimilars(similar):
             assignCard(playerOn) #It will give the player a new card inside the deck
 
 
-
-            
-        
-        print("\nNEW HAND") #DELET
-        showHand(ICG.playerOn) #show the new hand of the player
-        print("End Player " + ICG.playerName[ICG.playerOn] + "'s Turn") 
-        print("_ "* 15)
-        
-        Arr,Ar2 = Sort(scoreHand(ICG.playerOn))         #Split them to Arr which focuses on the ranks and Ar2 which focuses on the suit
-        scores = ScorePlayer(Arr,Ar2,ICG.playerOn, scores) #Then using that information I will produce the scores for each player in a 2D array
-
-        for i in range(len(ICG.wonWith)):
-            #print (scores[ICG.playerOn-1][i])
-            if (scores[ICG.playerOn-1][i] != 0):
-                print(ICG.wonWith[9-i]) #This tells me what they won with, i.e HighCard or Royal Flush
-                print(scores[ICG.playerOn -1][i]) #This tells me what the type of card won with is i.e 13 = king
-        
-        ICG.playerOn += 1 #Go to the next player
-        if (ICG.playerOn -1 == ICG.numPlayers):
-            wait = input ("Pass to Player " + ICG.playerName[ICG.playerOn - ICG.numPlayers] + "\n" * 3) #pass to the first player if you are on the last player
-        else:
-            wait = input ("Pass to Player " + ICG.playerName[ICG.playerOn] + "\n" * 3) #otherwise pass to the next player
-    
-        #This is the magic that calculates the scores
-        #all of the cards are assigned to the correct players in cardLoc
-
-    print (str(scores) + "\n")
-    #This if statement is ok for now but my goal is to have this working for 10 players or less
-    if (ICG.numPlayers == 1): #If there is only one player then I you already know who won which is the yourself
-        winner = ICG.playerName[1]
-        print("Player: " + winner + " wins")
-    elif (ICG.numPlayers == 2): #If there is two players then I decide who won by giving the indexes 0 and 1 (in the index of scores) 
-        winner = WhoWon(0,1,scores)
-        print("Player: " + ICG.playerName[winner + 1] + " wins with " + withWhat(winner,scores))
-    elif (ICG.numPlayers == 3):
-        winner = WhoWon(WhoWon(0,1,scores),2,scores)
-        print("Player: " + ICG.playerName[winner + 1] + " wins with " + withWhat(winner,scores))
-    elif (ICG.numPlayers == 4):
-        winner = WhoWon(WhoWon(0,1,scores),WhoWon(2,3,scores),scores)
-        print("Player: " + ICG.playerName[winner + 1] + " wins with " + withWhat(winner,scores))
-        #This ends up having an orderly patern like a bracket style compitition to find the winner
         
 #What I want to do next is make a withWhat Function
 def withWhat(winner,scores):
@@ -289,7 +330,7 @@ def ScorePlayer(Arr,Ar2,playerOn,scores): #given Arr and Ar2 will return the sco
                            SH.TwoPair(Arr),        #value of the highest pair
                            SH.ThreeOfAKind(Arr),   #value of the highest triplet
                            SH.Straight(Arr),               #True or False      #ends up looking at high card Anyways
-                           SH.Flush(Ar2),                  #True or False      #ends up looking at high card Anyways
+                           SH.Flush(0,4,Ar2),                  #True or False      #ends up looking at high card Anyways
                            SH.FullHouse(Arr),              #True or False      #ends up looking at high card Anyways
                            SH.FourOfAKind(Arr),    #value of the highest quadlet
                            SH.StraightFlush(Arr,Ar2),      #True or False      #ends up looking at high card Anyways
@@ -304,6 +345,26 @@ def WhoWon(player1,player2,scores): #Given the indexes of players it will tell m
             return player1
         elif (scores[player1][lns - i] < scores[player2][lns - i]):
             return player2 #This function WhoWon is good but I would like it to be recursive
+
+def ScoringPlayersForReal(scores): #This is my updated who won function which should work
+    winers = [] #Just make sure that it dosn't try to look for only 1 player then it won't work
+    for p in range(2):
+        total = 0
+        for e in range(10):
+            total += scores[p][e]*10**e
+            print(total)
+        winers.append(total)
+    return winers 
+
+
+'''#When calling
+x = [[14,0,0,0,14,0,1,0,0,1,1],[0,1,2,3,4,5,0,0,0,0,0]] #my array
+ScoringPlayersForReal(ICG.Scores) #this makes the 2d lists into a 1d list
+s.index(max(s)) #this gives the index of the maximum value hint hint nudge nudge giving the winner as an index
+'''
+        
+    
+            
 
 if __name__ == "__main__":
     main()

@@ -59,14 +59,14 @@ def Straight(arr):
     return straight
 
 #FLUSH Ar2 
-def Flush (Ar2): #(XXXXX)
-    Flush = False 
-    a = [0] * (len(ICG.suitName) + 1)
-    for i in range (len(ICG.suitName) + 1):
-        if (a == Ar2):
-            Flush = True
-        a = [i] * (len(ICG.suitName) + 1) 
-    return Flush #boolean
+def Flush (start, end, arr): 
+    if (start == len(arr)-1 or start == end):
+        return True
+    elif (arr[start] == arr[start+1]):
+        return flush(start +1,end,arr)
+    else:
+        return False #Since I am adding this I will also have to change the 
+
     
 #FULL HOUSE 
 def FullHouse(Arr): #(XXYYY) or (XXXYY)

@@ -29,12 +29,28 @@ def main():
                 print(scores[ICG.playerOn -1][i]) #This tells me what the type of card won with is i.e 13 = king
         #ShowHand()
         showHand(ICG.playerOn) #Shows players hand
-        #ExchangeHand
-        exchangeHand(ICG.playerOn, scoreHand(ICG.playerOn)) #exchange hand cards in the players hand
+
+        
+        #ExchangeHand() 
         '''if (isComp[ICG.playerOn]):
             exchangeComputerHand()
         else:
             exchangePlayerHand()'''
+        
+        print("Arr" + str(Arr)) #Delete Later THIS IS SORTED
+        print("Ar2" + str(Ar2) + "\n") #Delete Later THIS IS SORTED This is bad because I need to know the index
+        
+        print("scoreHand" + str(scoreHand(ICG.playerOn)) + "\n") #Delete Later THIS IS NOT SORTED
+
+        print("Computer keeps")
+        exchangeComputerHand(ICG.playerOn,Sort(scoreHand(ICG.playerOn)))
+
+
+
+
+        print("\n"*8)
+        exchangeHand(ICG.playerOn, scoreHand(ICG.playerOn)) #exchange hand cards in the players hand
+
         
         #This is where I need to exchange hand for the computer
         #So far I have that it knows what the best score is
@@ -98,30 +114,86 @@ def main():
     
 
 
+
+
+def exchangeHand (playerOn, hand): #This lets me exchange cards
+    ar3 = [-1] * 5 #This represents a bool Arr that will say if I want to exchange the cards or not #I set to -1 so if it donsn't go allthe way through it will give an error
+    print("In the form of y/n")
+    for i in range (5):
+        keepGoing = True
+        while keepGoing:
+            #printCard(hand[i]) #prints the card you are on in terms of i #DELETE
+            exchangeStr = input("Would you like to keep " + blankOfBlank(hand[i]) +": ") #Hand[i] represents the index in cardLoc
+            if (exchangeStr.upper() == "YES" or exchangeStr.upper() == "Y"):
+                ar3[i] = True  #it will keep this card
+                keepGoing = False #It will go to the next card
+            elif (exchangeStr.upper() == "NO" or exchangeStr.upper() == "N"):
+                ar3[i] = False #it won't keep this card
+                keepGoing = False #It will go to the next Card
+            else:
+                print("I don't know what you said") #prints that I don't understand then restates the confirmation for the card
+                #Since keepGoing = True it will try again on the same card
+    for i in range(5):
+        if not (ar3[i]):#if ar3[i] = False then exchange
+            ICG.cardLoc[hand[i]] = ICG.DECK #It will set the card the player had and send it to the deck
+            assignCard(playerOn) #It will give the player a new card inside the deck
+
                     
-def exchangeCompHand (playerOn, hand): #This lets me exchange cards
-    ar3 = [-1] * 5 #The represents true or false which cards you are going to keep
+def exchangeComputerHand(playerOn, hand): #This lets me exchange cards    
+    arr,ar2 = hand
+    s,f = closeToStraight(arr),closeToFlush(ar2)
+    #keep = [-1] * 5 #The represents true or false which cards you are going to keep
+    if (SH.Straight(arr) or SH.Flush(0,4,ar2)):
+        print("Keep Straight or Flush")
+        
+        keep = [True] * 5
+        
+    elif (len(findAnyPairs(arr))!= 0):
+        print("Keep any Pairs")
+        similar = findAnyPairs(arr)
+        keepSimilars(similar)
+        print(similar) #This tells me what the indexes are if there is atleast a pair
+        
+    elif (len(s) != 0):
+        print("Keep close to Straight")
+        print(s)
+        
+    elif (len(f) != 0):
+        print("Keep close to Flush")
+        print(f)
 
-
-
-#INSERT CODE THAT FINDS WHAT CARDS TO KEEP
-'''PSUDOCODE Herystic Algrithm
-
-if (straight or flush):
-    keep = [True] * 5
+    else:
+        print("Maximize High Cards")
+        print(maximizeTheHighCards(arr))
+        
     
-elif(len(findanyPairs(arr))!= 0):
-    similar = findanypairs(arr)
-    keepSimilars(similar)
+    
+    #INSERT CODE THAT FINDS WHAT CARDS TO KEEP
+    '''PSUDOCODE Herystic Algrithm
 
-elif (closeToStraight()):
-    keepGoodCards()
-elif (clostToFlush()):
-    keepGoodCards()
-else:
-    maximizeTheHighCards()
-'''
+    if (straight or flush):
+        keep = [True] * 5
+        
+    elif(len(findanyPairs(arr))!= 0):
+        similar = findanypairs(arr)
+        keepSimilars(similar)
 
+    elif (closeToStraight()):
+        keepGoodCards()
+        
+    elif (clostToFlush()):
+        keepGoodCards()
+        
+    else:
+        maximizeTheHighCards()
+    '''
+
+def maximizeTheHighCards(arr):
+    keep = []
+    for i in range(len(arr)):
+        if (arr[i]>=10):
+            keep.append(i)
+    return keep
 
 
 def flush (start, end, arr): #This appears to work Need to put this into the Schoring hand
@@ -147,6 +219,7 @@ def closeToFlush(arr):
                 return flushIndexes #then send the indexes that where good            
             sIndex += 1
         nLength -= 1
+    return []
 
 def closeToStraight(arr): #This will go until it gets to the desired length
     mLength = 3 #This is the minimum length that I want it to reach so if the computer has a straight of length 3 then it will say to keep those cards
@@ -160,9 +233,10 @@ def closeToStraight(arr): #This will go until it gets to the desired length
                 straightIndexes = [] #represents indexes of the straight 
                 for i in range(nLength): #goes for the length of how many numbers where involved in making the straight
                     straightIndexes.append(sIndex + i)
-                return x
+                return straightIndexes
             sIndex += 1
         nLength -= 1
+    return []
 
 def findAnyPairs(arr): #These are sorted from least to greatest so if there is a pair then it will be next to each other
     similarIndex = []
@@ -175,7 +249,7 @@ def findAnyPairs(arr): #These are sorted from least to greatest so if there is a
     
 def keepSimilars(similar):
     keep = [-1] * 5
-    for i in range(len(similar)):
+    for i in range(len(similar) -1):
         keep[similar[i]] = True
         keep[similar[i] + 1] = True
     return keep
@@ -219,7 +293,7 @@ def showHand(playerOn): #show the hand of the selected player
         if (ICG.cardLoc[i] == playerOn): #if the location matches the player you are on
             print(printCard(i)) #then print the card
     print("")
-    
+
 def printCard(i): #Given an Index it will print the card (index Ace of Diamonds player 1)
     sN = i // len(ICG.rankName)  
     rN = i % len(ICG.rankName)    
@@ -251,28 +325,6 @@ def Sort(hand): #given the hand returns its Arr, and Ar2 Arrays
     Arr.sort() #This sorts them from least to greatest
     Ar2.sort() #I want that because it simplifies a lot of things when calculating the score of the hand
     return Arr, Ar2 #This returns a tuple
-
-def exchangeHand (playerOn, hand): #This lets me exchange cards
-    ar3 = [-1] * 5 #This represents a bool Arr that will say if I want to exchange the cards or not #I set to -1 so if it donsn't go allthe way through it will give an error
-    print("In the form of y/n")
-    for i in range (5):
-        keepGoing = True
-        while keepGoing:
-            #printCard(hand[i]) #prints the card you are on in terms of i #DELETE
-            exchangeStr = input("Would you like to keep " + blankOfBlank(hand[i]) +": ") #Hand[i] represents the index in cardLoc
-            if (exchangeStr.upper() == "YES" or exchangeStr.upper() == "Y"):
-                ar3[i] = True  #it will keep this card
-                keepGoing = False #It will go to the next card
-            elif (exchangeStr.upper() == "NO" or exchangeStr.upper() == "N"):
-                ar3[i] = False #it won't keep this card
-                keepGoing = False #It will go to the next Card
-            else:
-                print("I don't know what you said") #prints that I don't understand then restates the confirmation for the card
-                #Since keepGoing = True it will try again on the same card
-    for i in range(5):
-        if not (ar3[i]):#if ar3[i] = False then exchange
-            ICG.cardLoc[hand[i]] = ICG.DECK #It will set the card the player had and send it to the deck
-            assignCard(playerOn) #It will give the player a new card inside the deck
             
 def ScorePlayer(Arr,Ar2,playerOn,scores): #given Arr and Ar2 will return the scores for playerOn
     scores[playerOn- 1] = [SH.HighCard(Arr),       #relies on highCard

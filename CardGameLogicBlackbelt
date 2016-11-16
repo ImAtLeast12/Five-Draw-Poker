@@ -88,133 +88,39 @@ def main():
     #When done with the loop I will be Scoring the players
             
     print (str(scores) + "\n")
-
     
-
-    #scores = [[14,0,0,0,14,0,1,0,0,1,1],[0,1,2,3,4,5,0,0,0,0,0]] #my array
-    '''winners = ScoringPlayersForReal(scores) #this makes the 2d lists into a 1d list
-    print(winners)
-    theWinnerIndex = (winners.index(max(winners)) + 1)
-    print(ICG.playerName[theWinnerIndex])
-    print(withWhat(theWinnerIndex-1,scores))
-
-    
-    print(winners.index(max(winners))) #this gives the index of the maximum value hint hint nudge nudge giving the winner as an index
-    print()'''
-
-
-    if (ICG.numPlayers == 1):
+    if (ICG.numPlayers == 1): #tells who won unless there is only 1 player then it would be redundent
         pass
     else:
-        
-        #ScoringPlayersForReal Replacing ScoringPlayersForReal
         evaluateScores = Evaluate(scores)
-        #print(evaluateScores)
         theWinnerIndex = (evaluateScores.index(max(evaluateScores)) + 1)
-        #print(ICG.playerName[theWinnerIndex]) #Kyle
-        #print(withWhat(theWinnerIndex-1,scores)) #Three fo a Kind
         print(ICG.playerName[theWinnerIndex] + " wins with " + withWhat(theWinnerIndex-1,scores))
-        
-    
-    
-    
     
 
 
-    '''    
-    
-    #This if statement is ok for now but my goal is to have this working for 10 players or less
-    if (ICG.numPlayers == 1): #If there is only one player then I you already know who won which is the yourself
-        winner = ICG.playerName[1]
-        print("Player: " + winner + " wins")
-    elif (ICG.numPlayers == 2): #If there is two players then I decide who won by giving the indexes 0 and 1 (in the index of scores) 
-        winner = WhoWon(0,1,scores)
-        print("Player: " + ICG.playerName[winner + 1] + " wins with " + withWhat(winner,scores))
-    elif (ICG.numPlayers == 3):
-        winner = WhoWon(WhoWon(0,1,scores),2,scores)
-        print("Player: " + ICG.playerName[winner + 1] + " wins with " + withWhat(winner,scores))
-    elif (ICG.numPlayers == 4):
-        winner = WhoWon(WhoWon(0,1,scores),WhoWon(2,3,scores),scores)
-        print("Player: " + ICG.playerName[winner + 1] + " wins with " + withWhat(winner,scores))
-        #This ends up having an orderly patern like a bracket style compitition to find the winner
-    '''
-
-
-
-
-
-
-
-
-
-
-'''def exchangeHand (playerOn, hand): #This lets me exchange cards
-    ar3 = [-1] * 5 #This represents a bool Arr that will say if I want to exchange the cards or not #I set to -1 so if it donsn't go allthe way through it will give an error
-    print("In the form of y/n")
-    for i in range (5):
-        keepGoing = True
-        while keepGoing:
-            #printCard(hand[i]) #prints the card you are on in terms of i #DELETE
-            exchangeStr = input("Would you like to keep " + blankOfBlank(hand[i]) +": ") #Hand[i] represents the index in cardLoc
-            if (exchangeStr.upper() == "YES" or exchangeStr.upper() == "Y"):
-                ar3[i] = True  #it will keep this card
-                keepGoing = False #It will go to the next card
-            elif (exchangeStr.upper() == "NO" or exchangeStr.upper() == "N"):
-                ar3[i] = False #it won't keep this card
-                keepGoing = False #It will go to the next Card
-            else:
-                print("I don't know what you said") #prints that I don't understand then restates the confirmation for the card
-                #Since keepGoing = True it will try again on the same card               
-    for i in range(5):
-        if not (ar3[i]):#if ar3[i] = False then exchange
-            ICG.cardLoc[hand[i]] = ICG.DECK #It will set the card the player had and send it to the deck
-            assignCard(playerOn) #It will give the player a new card inside the deck'''
-            
+                    
 def exchangeCompHand (playerOn, hand): #This lets me exchange cards
     ar3 = [-1] * 5 #The represents true or false which cards you are going to keep
 
 
 
-    #INSERT CODE THAT FINDS WHAT CARDS TO KEEP
-    '''PSUDOCODE Herystic Algrithm
-
-   if (this is a flush) or (this a straight): # < - - - This is what I want to do it looks cleaner
-       ar3 = [True] * 5
-   elif (this is a full house):
-       ar3 = [True] * 5
-   elif (this is a two pair):
-       ar3 = [True] * 5
-   elif (this is a pair):
-       keep the good cards
-       if (there is a diffrent pair):
-           make a copy of the original aray but take out the ones that matched
-           if (there is a pair):
-              keep the other good cards
-      keep all of the cards that match the pairs value
-   elif (this is close to a straight):
-      keep the good cards
-   elif (this is close to getting a flush):
-      keep the good cards
-   else:
-      maximizeTheHighCards()
-
+#INSERT CODE THAT FINDS WHAT CARDS TO KEEP
+'''PSUDOCODE Herystic Algrithm
 
 if (straight or flush):
     keep = [True] * 5
-
+    
 elif(len(findanyPairs(arr))!= 0):
     similar = findanypairs(arr)
     keepSimilars(similar)
 
 elif (closeToStraight()):
-
+    keepGoodCards()
 elif (clostToFlush()):
-    
-
-
-    
-
-  '''
+    keepGoodCards()
+else:
+    maximizeTheHighCards()
+'''
 
 
 
@@ -241,7 +147,6 @@ def closeToFlush(arr):
                 return flushIndexes #then send the indexes that where good            
             sIndex += 1
         nLength -= 1
-
 
 def closeToStraight(arr): #This will go until it gets to the desired length
     mLength = 3 #This is the minimum length that I want it to reach so if the computer has a straight of length 3 then it will say to keep those cards
@@ -281,8 +186,6 @@ def keepSimilars(similar):
             ICG.cardLoc[hand[i]] = ICG.DECK #It will set the card the player had and send it to the deck
             assignCard(playerOn) #It will give the player a new card inside the deck
 
-
-        
 #What I want to do next is make a withWhat Function
 def withWhat(winner,scores):
     #what this will do is that if it has the winning player index
@@ -402,16 +305,6 @@ def Evaluate(scores): #This is my updated who won function which should work
             #print(total)
         winers.append(total)
     return winers 
-
-
-'''#When calling
-scores = [[14,0,0,0,14,0,1,0,0,1,1],[0,1,2,3,4,5,0,0,0,0,0]] #my array
-ScoringPlayersForReal(ICG.Scores) #this makes the 2d lists into a 1d list
-s.index(max(s)) #this gives the index of the maximum value hint hint nudge nudge giving the winner as an index
-'''
-        
-    
-            
 
 if __name__ == "__main__":
     main()

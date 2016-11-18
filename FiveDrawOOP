@@ -1,0 +1,96 @@
+from random import *
+NUMCARDS = 52
+DECK = 0
+PLAYER = 1
+COMP = 2
+
+cardLoc = [0] * NUMCARDS
+suitName = ("hearts", "diamonds", "spades", "clubs")
+rankName = ("Ace", "Two", "Three", "Four", "Five", "Six", "Seven", 
+            "Eight", "Nine", "Ten", "Jack", "Queen", "King")
+playerName = ("deck", "player", "computer")
+
+
+def Main():
+    '''hand = []
+    #x = Player()
+    x = Player("Kyle",True,hand,0)
+    print(x.name)
+    print(x.isComputer)
+    print(x.hand)
+    print(x.playerNum)
+
+    
+    for i in range(5):
+        x.assignCard(1)
+
+    print(x.hand)'''
+
+
+    player = Player()
+    player.name = "Player"
+
+    
+    computer = Player()
+    computer.name = "Computers"
+    computer.isComputer = True
+
+    
+
+    
+
+    clearDeck()
+    for i in range(5):
+        player.assignCard(PLAYER)
+        computer.assignCard(COMP)
+    showDeck()
+    player.showHand(PLAYER)
+    computer.showHand(COMP)
+
+
+
+def clearDeck():
+    cardLoc = [0]*NUMCARDS
+
+def showDeck():
+    p = []
+    for i in range(NUMCARDS):
+        p.append(printCard(i))
+
+    print(p)
+    for i in range(len(p)):
+        print(p[i])
+    
+
+def printCard(cardIndex):
+    y = cardIndex // len(rankName)
+    x = cardIndex % len(rankName)
+    return ('{} \t {:5} of {} \t').format(cardIndex,rankName[x],suitName[y])
+
+
+
+
+
+class Player():
+    def __init__(self, name = "Nick",isComputer = False,hand = [],playerNum = 1):
+        self.name = name
+        self.isComputer = isComputer
+        self.hand = []
+        self.playerNum = playerNum
+
+    def assignCard(self,playerOn):
+        #generate a random number from 0 to 51
+        #later make sure that it is inside the deck
+        randNum = int(random() * 51)
+        self.hand.append(randNum)
+        
+    def showHand(self,playerOn):
+        print(self.hand)
+
+    
+    
+        
+
+Main()
+
+        

@@ -8,35 +8,78 @@ COMP = 2
 suitName = ("hearts", "diamonds", "spades", "clubs")
 rankName = ("Ace", "Two", "Three", "Four", "Five", "Six", "Seven", 
             "Eight", "Nine", "Ten", "Jack", "Queen", "King")
-playerName = ("deck", "player", "computer")
+playerName = ("deck", "player", "computer")#This is where I chane who is playing
+NUMPLAYERS = 2
+
+
+
+
 
 def main():
-    
+    '''#Initilize Players
     player = Player()
-    player.name = "Player"
+    player.name = playerName(1)
     player.playerNum = 1
 
     computer = Player()
-    computer.name = "Computers"
+    computer.name = playerName(2)
     computer.isComputer = True
-    computer.playerNum = 2
+    computer.playerNum = 2'''
 
     deck = Deck()
+    player = [] 
+
+    for i in range(NUMPLAYERS):
+        player.append(Player()) #makes an instance of the player class
+        player[i].name = playerName[i+1] #seting their name
+        player[i].playerNum = i+1 #Seting what number they are
 
     for i in range(5):
-        deck = player.assignCard(deck) #my hope was that it would remember the changes since it is stored here
-        deck = computer.assignCard(deck)
+        for x in range(NUMPLAYERS):
+            player[x].assignCard(deck)
+
+            
     print("Location of all cards\n#" + "\t" + "card" + "\t" + "\t " + "Location")
     deck.showDeck()
-    
-    
-    print("\nPlayers Cards")
-    player.showHand()
-    print("\nComputer Cards")
-    computer.showHand()
+
+    for i in range(NUMPLAYERS):
+        print("\n" + player[i].name+ "'s Cards")
+        player[i].showHand()
+        
+    '''
+    GOALS
+    clearDeck()
+    shuffleCards()
+
+    for (playerOn in range(1,numPlayers)):
+        PrintName()
+        ScoreHand()
+        PrintScores()
+        ScoreHand()
+        ShowHand()
+
+        if (PlayerOn is Computer):
+            exchangeComputerHand()
+        else:
+            exchangePlayerHand()
+        ScoreHand()
+
+        PrintHand()
+        EndPlayersTurn()
+
+        ScorePlayer()
+        PassToNextPlayer()
+
+    printScores()
+    if (numPlayers == 1):
+        pass
+    else:
+        FindTheWinner
+        Tell who wins'''
+
 
 class Player():
-    def __init__(self, name = "defalt",isComputer = False,hand = [],playerNum = 1):
+    def __init__(self, name = "defalt", isComputer = False, hand = [], playerNum = 1):
         self.name = name
         self.isComputer = isComputer
         self.hand = []

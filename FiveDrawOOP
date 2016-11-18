@@ -11,6 +11,7 @@ rankName = ("Ace", "Two", "Three", "Four", "Five", "Six", "Seven",
 playerName = ("deck", "player", "computer")
 
 def main():
+    
     player = Player()
     player.name = "Player"
     player.playerNum = 1
@@ -20,13 +21,19 @@ def main():
     computer.isComputer = True
     computer.playerNum = 2
 
+    
+
+
+
+    
+
     clearDeck()
     print("Location of all cards")
     print("#" + "\t" + "card" + "\t" + "\t " + "Location")
     for i in range(5):
         player.assignCard(PLAYER)
         computer.assignCard(COMP)
-    showDeck()
+    #showDeck()
     print("\n")
     print("Players Cards")
     player.showHand(PLAYER)
@@ -46,8 +53,9 @@ def showDeck():
         print(str(p[i]))
 
 def printCard(cardIndex):
-    y = cardIndex // len(rankName)
     x = cardIndex % len(rankName)
+    y = cardIndex // len(rankName)
+
     return ('{} \t {:5} of {} \t {}').format(cardIndex,rankName[x],suitName[y],cardLoc[cardIndex])
 
 class Player():
@@ -71,6 +79,33 @@ class Player():
         print(self.hand)
         for i in range(len(self.hand)):
             print(self.hand[i])
+
+class Deck():
+    def __init__(self, deck = [0]*NUMCARDS):
+        self.deck = deck
+
+class Card():
+    def __init__(self, index):
+        self.index = index
+
+
+    def getRank(self):
+        return self.index % len(rankName)
+
+    def getSuit(self):
+        return self.index // len(rankName)
+
+    def getRankName(self):
+        return rankName[self.getRank()]
+
+    def getSuitName(self):
+        return suitName[self.getSuit()]
+
+    def getCardName(self):
+        return str("{} of {}").format(self.getRankName(), self.getSuitName())
+        
+
+        
 
 if (__name__ == "__main__"):
     main()

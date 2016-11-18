@@ -91,7 +91,16 @@ class Deck():
             for i in range (0, 51):
                 """ card constructor takes (card num from 0 to 12, suit name from 0 to 3, 
                     the string suit name, the string rank name) """
-                self.deck[i] = Card( i % 13 , i / 13 , self.suit_name[i / 13] , self.rank_name[i % 13] )
+                self.deck[i] = Card( i % 13 , i // 13 , self.suit_name[i // 13] , self.rank_name[i % 13] )
+
+    """ randomly swaps every card with another card 52 times """
+    def shuffle ():
+        for i in range (0, 51):
+            for j in range (i + 1, 51):
+                tmp_card = self.deck[i]
+                rand_int = random.randrange(51)
+                self.deck[i] = self.deck[rand_int]
+                self.deck[rand_int] = tmp_card
 
 
 class Card():

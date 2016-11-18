@@ -21,42 +21,19 @@ def main():
     computer.isComputer = True
     computer.playerNum = 2
 
-    
+    deck = Deck()
 
-
-
-    
-
-    clearDeck()
-    print("Location of all cards")
-    print("#" + "\t" + "card" + "\t" + "\t " + "Location")
     for i in range(5):
-        player.assignCard(PLAYER)
-        computer.assignCard(COMP)
-    #showDeck()
-    print("\n")
-    print("Players Cards")
-    player.showHand(PLAYER)
-    print("\n") 
-    print("Computer Cards")
-    computer.showHand(COMP)
+        player.assignCard()
+        computer.assignCard()
+    print("Location of all cards\n#" + "\t" + "card" + "\t" + "\t " + "Location")
+    deck.showDeck()
 
-def clearDeck():
-    cardLoc = [0]*NUMCARDS
     
-def showDeck():
-    p = []
-    for i in range(NUMCARDS):
-        p.append(printCard(i))
-        
-    for i in range(len(p)):
-        print(str(p[i]))
-
-def printCard(cardIndex):
-    x = cardIndex % len(rankName)
-    y = cardIndex // len(rankName)
-
-    return ('{} \t {:5} of {} \t {}').format(cardIndex,rankName[x],suitName[y],cardLoc[cardIndex])
+    print("\nPlayers Cards")
+    player.showHand()
+    print("\nComputer Cards")
+    computer.showHand()
 
 class Player():
     def __init__(self, name = "defalt",isComputer = False,hand = [],playerNum = 1):
@@ -65,7 +42,7 @@ class Player():
         self.hand = []
         self.playerNum = playerNum
 
-    def assignCard(self,playerOn): #generate a random number from 0 to 51 that it is inside the deck
+    def assignCard(self): #generate a random number from 0 to 51 that it is inside the deck
         legalCards = []
         for i in range(52):
             if (cardLoc[i] == DECK): #tells me the cards that are left in the deck
@@ -73,21 +50,26 @@ class Player():
         randNum = int(random()*len(legalCards)) #chooses an index in legalCards
         cardLoc[legalCards[randNum]] = self.playerNum #The number rand chose cardLocation is now equal to your player number
         self.hand.append(legalCards[randNum])
-        
+        deck.cards(legalCards[randNum]).assignedTo = self.playerNum #This is going wrong because deck is not visible
 
-    def showHand(self,playerOn):
+    def showHand(self):
         print(self.hand)
-        for i in range(len(self.hand)):
-            print(self.hand[i])
 
 class Deck():
-    def __init__(self, deck = [0]*NUMCARDS):
-        self.deck = deck
+    def __init__(self, cards = []):
+        self.cards = cards
+        for i in range(NUMCARDS):
+            self.cards.append(Card(i))
+
+    def showDeck(self):
+        x = []
+        for i in range(NUMCARDS):
+            print("{}\t{:5}    \t{}".format(i,self.cards[i].getCardName(),self.cards[i].assignedTo))
 
 class Card():
-    def __init__(self, index):
+    def __init__(self, index, assignedTo = 0):
         self.index = index
-
+        self.assignedTo = assignedTo
 
     def getRank(self):
         return self.index % len(rankName)
@@ -101,12 +83,9 @@ class Card():
     def getSuitName(self):
         return suitName[self.getSuit()]
 
-    def getCardName(self):
+    def getCardName(self): #This is very similar to printing the cards out
         return str("{} of {}").format(self.getRankName(), self.getSuitName())
-        
-
-        
 
 if (__name__ == "__main__"):
     main()
-        
+

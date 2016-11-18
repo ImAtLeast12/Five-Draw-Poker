@@ -46,11 +46,10 @@ class Player():
         legalCards = []
         for i in range(len(deck.cards)):
             if (deck.cards[i].assignedTo == DECK): 
-                legalCards.append(i) 
-        
+                legalCards.append(i)
         randNum = int(random()*len(legalCards)) #chooses an index in legalCards
-        deck.cards[randNum].assignedTo = self.playerNum
-        self.hand.append(legalCards[randNum]) #Adds the number to the players hand
+        deck.cards[legalCards[randNum]].assignedTo = self.playerNum
+        self.hand.append(legalCards[randNum])#Adds the number to the players hand
         return deck
 
     def showHand(self):

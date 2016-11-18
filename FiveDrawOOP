@@ -10,87 +10,68 @@ rankName = ("Ace", "Two", "Three", "Four", "Five", "Six", "Seven",
             "Eight", "Nine", "Ten", "Jack", "Queen", "King")
 playerName = ("deck", "player", "computer")
 
-
-def Main():
-    '''hand = []
-    #x = Player()
-    x = Player("Kyle",True,hand,0)
-    print(x.name)
-    print(x.isComputer)
-    print(x.hand)
-    print(x.playerNum)
-
-    
-    for i in range(5):
-        x.assignCard(1)
-
-    print(x.hand)'''
-
-
+def main():
     player = Player()
     player.name = "Player"
+    player.playerNum = 1
 
-    
     computer = Player()
     computer.name = "Computers"
     computer.isComputer = True
-
-    
-
-    
+    computer.playerNum = 2
 
     clearDeck()
+    print("Location of all cards")
+    print("#" + "\t" + "card" + "\t" + "\t " + "Location")
     for i in range(5):
         player.assignCard(PLAYER)
         computer.assignCard(COMP)
     showDeck()
+    print("\n")
+    print("Players Cards")
     player.showHand(PLAYER)
+    print("\n") 
+    print("Computer Cards")
     computer.showHand(COMP)
-
-
 
 def clearDeck():
     cardLoc = [0]*NUMCARDS
-
+    
 def showDeck():
     p = []
     for i in range(NUMCARDS):
         p.append(printCard(i))
-
-    print(p)
+        
     for i in range(len(p)):
-        print(p[i])
-    
+        print(str(p[i]))
 
 def printCard(cardIndex):
     y = cardIndex // len(rankName)
     x = cardIndex % len(rankName)
-    return ('{} \t {:5} of {} \t').format(cardIndex,rankName[x],suitName[y])
-
-
-
-
+    return ('{} \t {:5} of {} \t {}').format(cardIndex,rankName[x],suitName[y],cardLoc[cardIndex])
 
 class Player():
-    def __init__(self, name = "Nick",isComputer = False,hand = [],playerNum = 1):
+    def __init__(self, name = "defalt",isComputer = False,hand = [],playerNum = 1):
         self.name = name
         self.isComputer = isComputer
         self.hand = []
         self.playerNum = playerNum
 
-    def assignCard(self,playerOn):
-        #generate a random number from 0 to 51
-        #later make sure that it is inside the deck
-        randNum = int(random() * 51)
-        self.hand.append(randNum)
+    def assignCard(self,playerOn): #generate a random number from 0 to 51 that it is inside the deck
+        legalCards = []
+        for i in range(52):
+            if (cardLoc[i] == DECK): #tells me the cards that are left in the deck
+                legalCards.append(i) #Stores that into legalCards
+        randNum = int(random()*len(legalCards)) #chooses an index in legalCards
+        cardLoc[legalCards[randNum]] = self.playerNum #The number rand chose cardLocation is now equal to your player number
+        self.hand.append(legalCards[randNum])
         
+
     def showHand(self,playerOn):
         print(self.hand)
+        for i in range(len(self.hand)):
+            print(self.hand[i])
 
-    
-    
-        
-
-Main()
-
+if (__name__ == "__main__"):
+    main()
         

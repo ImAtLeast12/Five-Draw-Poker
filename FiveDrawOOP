@@ -24,7 +24,7 @@ def main():
     deck = Deck()
 
     for i in range(5):
-        deck = player.assignCard(deck)
+        deck = player.assignCard(deck) #my hope was that it would remember the changes since it is stored here
         deck = computer.assignCard(deck)
     print("Location of all cards\n#" + "\t" + "card" + "\t" + "\t " + "Location")
     deck.showDeck()
@@ -42,17 +42,15 @@ class Player():
         self.hand = []
         self.playerNum = playerNum
 
-    def assignCard(self,deck): #generate a random number from 0 to 51 that it is inside the deck
+    def assignCard(self,deck): 
         legalCards = []
         for i in range(len(deck.cards)):
-            if (deck.cards[i].assignedTo == DECK): #tells me the cards that are left in the deck
-                legalCards.append(i) #Stores that into legalCards
+            if (deck.cards[i].assignedTo == DECK): 
+                legalCards.append(i) 
         
         randNum = int(random()*len(legalCards)) #chooses an index in legalCards
-        print(randNum)
-        
-        deck.cards[i].assignedTo = self.playerNum
-        self.hand.append(legalCards[randNum])
+        deck.cards[randNum].assignedTo = self.playerNum
+        self.hand.append(legalCards[randNum]) #Adds the number to the players hand
         return deck
 
     def showHand(self):

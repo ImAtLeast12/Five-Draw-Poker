@@ -2,10 +2,10 @@ from random import *
 NUMCARDS = 52
 DECK = 0
 
-suitName = ("Hearts", "Diamonds", "Spades", "Clubs")
-rankName = ("Ace", "Two", "Three", "Four", "Five", "Six", "Seven", 
-            "Eight", "Nine", "Ten", "Jack", "Queen", "King")
-playerName = ("deck", "Player 1", "Player 2", "Player 3")
+suitName = ("♥", "♦", "♠", "♣")
+rankName = ("A", "2", "3", "4", "5", "6", "7", 
+            "8", "9", "10", "J", "Q", "K")
+playerName = ("deck", "Player 1 Nick", "Player 2 Sam", "Player 3 Mason")
 NUMPLAYERS = 3
 
 def main():
@@ -41,10 +41,11 @@ def main():
         passToNextPlayer(playerOn,player)
         input()
         
-    if (numPlayers == 1):
+    if (NUMPLAYERS == 1): #all of the turns are done at this point
         pass
     else:
         findTheWinner()
+        tellTheWinner()
     '''
     GOALS
     clearDeck()                                 done
@@ -66,15 +67,21 @@ def main():
         PrintHand()                             
         EndPlayersTurn()                        done
 
-        ScorePlayer()
-        PassToNextPlayer()
+        ScorePlayer()                           
+        PassToNextPlayer()                      done
 
-    printScores()
-    if (numPlayers == 1):
-        pass
+    printScores()                               done
+    if (numPlayers == 1):                       done
+        pass                                    done
     else:
-        FindTheWinner
-        Tell who wins'''
+        FindTheWinner                           inProgress
+        Tell who wins                           inProgress'''
+
+def tellTheWinner():
+    print("Tell who the winner is")
+
+def findTheWinner():
+    print("Finds who the winner is")
 
 def printName(playerOn,player):
     print(str("It's {}'s turn").format(player[playerOn].name))
@@ -99,25 +106,38 @@ def exchangePlayersHand():
 
 
 class Player():
-    def __init__(self, name = "defalt", isComputer = False, hand = [], playerNum = 1, score):
+    def __init__(self, name = "defalt", isComputer = False, hand = [], playerNum = 1, score = 0):
         self.name = name
         self.isComputer = isComputer
         self.hand = []
         self.playerNum = playerNum
         self.score = score
 
-    def assignCard(self,deck): 
-        legalCards = []
+    def assignCard(self,deck):#Assigns a card to the player 
+        cardsInDeck = [] 
         for i in range(len(deck.cards)):
             if (deck.cards[i].assignedTo == DECK): 
-                legalCards.append(i)
-        randNum = int(random()*len(legalCards)) #chooses an index in legalCards
-        deck.cards[legalCards[randNum]].assignedTo = self.playerNum
-        self.hand.append(legalCards[randNum])#Adds the number to the players hand
+                cardsInDeck.append(i)
+        randNum = int(random()*len(cardsInDeck)) #chooses an index in legalCards
+        deck.cards[cardsInDeck[randNum]].assignedTo = self.playerNum
+        self.hand.append(cardsInDeck[randNum])#Adds the number to the players hand
+        
         return deck
 
     def showHand(self):
         print(self.hand)
+
+    def calculateArr(self):
+        arr = []
+        for i in range(len(self.hand)):
+            arr.append(Card.getRank(i))
+        return arr
+        
+    def calculateAr2(self):
+        ar2 = []
+        for i in range(len(self.hand)):
+            ar2.append(Card.getSuit(i))
+        return ar2
 
 class Deck():
     def __init__(self, cards = []):
@@ -150,6 +170,31 @@ class Card():
     def getCardName(self): #This is very similar to printing the cards out
         return str("{} of {}").format(self.getRankName(), self.getSuitName())
 
+class Hand():
+    def __init__(self, hand = []):
+        self.hand = hand
+
+    def printCardsArrAr2(self):
+        arr = self.convertToArr()
+        ar2 = self.convertToAr2()
+        
+        for i in range(len(arr)):
+            print(str(rankName[arr[i]] + suitName[ar2[i]]))
+
+    def convertToArr(self):
+        Arr = []
+        for i in range(len(self.hand)):
+            card = Card(self.hand[i])
+            Arr.append(card.getRank())
+        return Arr
+
+    def convertToAr2(self):
+        Ar2 = []
+        for i in range(len(self.hand)):
+            card = Card(self.hand[i])
+            Ar2.append(card.getSuit())
+        return Ar2
+
 if (__name__ == "__main__"):
     main()
-
+    

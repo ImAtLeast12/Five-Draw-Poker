@@ -1,71 +1,70 @@
 from random import *
 NUMCARDS = 52
 DECK = 0
-PLAYER = 1
-COMP = 2
 
-#cardLoc = [0] * NUMCARDS
-suitName = ("hearts", "diamonds", "spades", "clubs")
+suitName = ("Hearts", "Diamonds", "Spades", "Clubs")
 rankName = ("Ace", "Two", "Three", "Four", "Five", "Six", "Seven", 
             "Eight", "Nine", "Ten", "Jack", "Queen", "King")
-playerName = ("deck", "player", "computer")#This is where I chane who is playing
-NUMPLAYERS = 2
-
-
-
-
+playerName = ("deck", "Player 1", "Player 2", "Player 3")
+NUMPLAYERS = 3
 
 def main():
-    '''#Initilize Players
-    player = Player()
-    player.name = playerName(1)
-    player.playerNum = 1
+    deck = Deck() #Initilize deck and players
+    player = []
 
-    computer = Player()
-    computer.name = playerName(2)
-    computer.isComputer = True
-    computer.playerNum = 2'''
+    for i in range(NUMPLAYERS): #Adds players to the game
+        player.append(Player()) 
+        player[i].name = playerName[i+1] 
+        player[i].playerNum = i+1
 
-    deck = Deck()
-    player = [] 
-
-    for i in range(NUMPLAYERS):
-        player.append(Player()) #makes an instance of the player class
-        player[i].name = playerName[i+1] #seting their name
-        player[i].playerNum = i+1 #Seting what number they are
-
-    for i in range(5):
+    for i in range(5): #Shuffels the Cards to the players
         for x in range(NUMPLAYERS):
             player[x].assignCard(deck)
+           
+    for playerOn in range(NUMPLAYERS): #Loop does everyting on each of the players turns
+        printName(playerOn,player)
 
-            
-    print("Location of all cards\n#" + "\t" + "card" + "\t" + "\t " + "Location")
-    deck.showDeck()
-
-    for i in range(NUMPLAYERS):
-        print("\n" + player[i].name+ "'s Cards")
-        player[i].showHand()
+        showHand(playerOn,player)
+        scoreHand()
+        input() #So the player has time to respond
         
+        if (player[playerOn].isComputer):
+            exchangeComputersHand()
+        else:
+            exchangePlayersHand()
+        input()
+        
+        showHand(playerOn,player)
+        scoreHand()
+        input()
+
+        passToNextPlayer(playerOn,player)
+        input()
+        
+    if (numPlayers == 1):
+        pass
+    else:
+        findTheWinner()
     '''
     GOALS
-    clearDeck()
-    shuffleCards()
+    clearDeck()                                 done
+    shuffleCards()                              done
 
-    for (playerOn in range(1,numPlayers)):
-        PrintName()
-        ScoreHand()
-        PrintScores()
-        ScoreHand()
-        ShowHand()
+    for (playerOn in range(1,numPlayers)):      done
+        PrintName()                             done
+        ScoreHand()                             inProgress
+        PrintScores()                           inProgress
+        ScoreHand()                             
+        ShowHand()                              done
 
-        if (PlayerOn is Computer):
-            exchangeComputerHand()
+        if (PlayerOn is Computer):              done
+            exchangeComputerHand()              inProgress
         else:
-            exchangePlayerHand()
-        ScoreHand()
+            exchangePlayerHand()                inProgress
+        ScoreHand()                             
 
-        PrintHand()
-        EndPlayersTurn()
+        PrintHand()                             
+        EndPlayersTurn()                        done
 
         ScorePlayer()
         PassToNextPlayer()
@@ -77,13 +76,35 @@ def main():
         FindTheWinner
         Tell who wins'''
 
+def printName(playerOn,player):
+    print(str("It's {}'s turn").format(player[playerOn].name))
+    
+def scoreHand():
+    print("\tScore the Hand")
+
+def showHand(playerOn, player):
+    print(str("\t{}'s hand:\n\t{}").format(player[playerOn].name,player[playerOn].hand))
+    
+def passToNextPlayer(playerOn,player):
+    if (playerOn + 1 == NUMPLAYERS):
+        print(("Pass to {}").format(player[0].name))
+    else:
+        print(("Pass to {}").format(player[playerOn+1].name))
+
+def exchangeComputersHand():
+    print("The Player Computer Exchanges their Hand")
+
+def exchangePlayersHand():
+    print("The Player Exchanges thier Hand")
+
 
 class Player():
-    def __init__(self, name = "defalt", isComputer = False, hand = [], playerNum = 1):
+    def __init__(self, name = "defalt", isComputer = False, hand = [], playerNum = 1, score):
         self.name = name
         self.isComputer = isComputer
         self.hand = []
         self.playerNum = playerNum
+        self.score = score
 
     def assignCard(self,deck): 
         legalCards = []

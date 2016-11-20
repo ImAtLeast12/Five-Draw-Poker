@@ -5,11 +5,13 @@ DECK = 0
 suitName = ("♥", "♦", "♠", "♣")
 rankName = ("A", "2", "3", "4", "5", "6", "7", 
             "8", "9", "10", "J", "Q", "K")
-playerName = ("deck", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10")
-NUMPLAYERS = 1
+playerName = ("deck", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10","P11")
+isComputer = (False,False,False,False,False,False,False,False,False,False,False)
+
+NUMPLAYERS = 2 #1 <= NUMPLAYERS <= 10
 
 def main():
-    deck = Deck() #Initilize deck and players
+    '''deck = Deck() #Initilize deck and players
     player = []
 
     for i in range(NUMPLAYERS): #Adds players to the game
@@ -43,75 +45,75 @@ def main():
         pass
     else:
         findTheWinner()
-        tellTheWinner()
+        tellTheWinner()'''
 
-def scoreHand(playerOn,player): 
-    print(player[playerOn].hand)
-    newHand = player[playerOn].hand
-    newHand = ScoreHand(newHand)
-    newHand = Hand(newHand.hand,newHand.scoring)
-    newHand = newHand.scoreScoring()
-    print(newHand)
-    print("\tScore the Hand")
+
+
+    deck = Deck() #Initilize deck and players
+    player = []
+    for playerOn in range(1,NUMPLAYERS+1): #Adds players to the game
+        player.append(Player(playerOn,playerName[playerOn],isComputer[playerOn]))
+
+    for i in range(5): #Shuffels the Cards to the players
+        for playerOn in range(NUMPLAYERS):
+            player[playerOn].hand.cards.append(Card(assignOpenCard(deck,player[playerOn].playerNum))) #IS THIS BAD?
+
+    for playerOn in range(NUMPLAYERS):
+        print("It's " + player[playerOn].name + " Trun")    #Initiates the players turn
+        print(player[playerOn].hand.printHand())            #prints the players hand
+        #ScoreThePlayer()
+        #
+        
     
-
-def tellTheWinner():
-    print("Tell who the winner is")
-
-def findTheWinner():
-    print("Finds who the winner is")
-
-def printName(playerOn,player):
-    print(str("It's {}'s turn").format(player[playerOn].name))
-
-def showHand(playerOn, player):
-    print(str("\t{}'s hand:\n\t{}").format(player[playerOn].name,player[playerOn].hand))
+def scoreCards(hand):
+    cards = hand.cards  #=  [39, 3,37,33,47]
+    Arr = hand.Arr      #=  [ 0, 3,11, 7, 8]
+    Ar2 = hand.Ar2      #=  [ 3, 0, 2, 2, 3]
     
-def passToNextPlayer(playerOn,player):
-    if (playerOn + 1 == NUMPLAYERS):
-        print(("Pass to {}").format(player[0].name))
-    else:
-        print(("Pass to {}").format(player[playerOn+1].name))
+    #Since this is a hand I can just call this to give me it's arr, and ar2
 
-def exchangeComputersHand():
-    print("The Player Computer Exchanges their Hand")
-
-def exchangePlayersHand():
-    print("The Player Exchanges thier Hand")
+def assignOpenCard(deck,playerNum): 
+    cardsInDeck = []
+    for i in range(NUMCARDS):
+        if (deck.cards[i].assignedTo == DECK): 
+            cardsInDeck.append(i) 
+    randNum = int(random()*len(cardsInDeck)) #chooses an index in legalCards 
+    deck.cards[cardsInDeck[randNum]].assignedTo = playerNum
+    return cardsInDeck[randNum]#Adds the number to the players hand
 
 
 class Player(): #TODO put in a module
-    def __init__(self, name = "defalt", isComputer = False, playerNum = 1, hand = []):
-        self.name = name
-        self.isComputer = isComputer
-        self.hand = [] #Should be a bunch of cards()
+    def __init__(self, playerNum = 1, name = "defalt", isComputer = False): #I can set all of these
         self.playerNum = playerNum
+        self.name = name 
+        self.isComputer = isComputer
+        self.hand = Hand()
+    #Every player has a hand
 
-    def assignCard(self,deck):#Assigns a card to the player 
-        cardsInDeck = [] 
-        for i in range(NUMCARDS):
-            if (deck.cards[i].assignedTo == DECK): 
-                cardsInDeck.append(i)
-        randNum = int(random()*len(cardsInDeck)) #chooses an index in legalCards
-        deck.cards[cardsInDeck[randNum]].assignedTo = self.playerNum
-        self.hand.append(cardsInDeck[randNum])#Adds the number to the players hand
-        
-        return deck
+class Hand(): #TODO put in a module
+    def __init__(self, cards = []):
+        self.cards = []
+
+    def ranksOfHand(self):
+        ranksOfHand = []
+        for i in range(len(self.cards)):
+            ranksOfHand.append(self.cards[i].Rank())
+        return ranksOfHand
     
-    def showHand(self):
-        print(self.hand)
+    def suitsOfHand(self):
+        suitsOfHand = []
+        for i in range(len(self.cards)):
+            suitsOfHand.append(self.cards[i].Suit())
+        return suitsOfHand
 
-    def calculateArr(self):
-        arr = []
-        for i in range(len(self.hand)):
-            arr.append(Card.getRank(i))
-        return arr
-        
-    def calculateAr2(self):
-        ar2 = []
-        for i in range(len(self.hand)):
-            ar2.append(Card.getSuit(i))
-        return ar2
+    def printHand(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(rankName[self.cards[i].Rank()] + suitName[self.cards[i].Suit()])
+        return printOut
+        #With the cards that you have it should be able to calculate what kind of hand it has
+        #[14, 0, 0, 0, True, True, False, 0, True, True]    ex Royal Flush
+        #11001100014                                           Royal Flsuh
 
 class Deck(): #TODO put in a module
     def __init__(self, cards = []):
@@ -119,173 +121,16 @@ class Deck(): #TODO put in a module
         for i in range(NUMCARDS):
             self.cards.append(Card(i))
 
-    def show(self):
-        x = []
-        for i in range(NUMCARDS):
-            print("{}\t{}\t{}".format(i,self.cards[i].getCardName(),self.cards[i].assignedTo))
-
 class Card(): #TODO put in a module
     def __init__(self, index, assignedTo = 0):
         self.index = index
         self.assignedTo = assignedTo
 
-    def getRank(self):
+    def Rank(self):
         return self.index % len(rankName)
-
-    def getSuit(self):
-        return self.index // len(rankName)
-
-    def getRankName(self):
-        return rankName[self.getRank()]
-
-    def getSuitName(self):
-        return suitName[self.getSuit()]
-
-    def getCardName(self): #This is very similar to printing the cards out
-        return str("{}{}").format(self.getRankName(), self.getSuitName())
-
-class Hand(): #TODO put in a module
-    def __init__(self, hand = [], scoring = [], score = 0,playerOn = 0):
-        self.hand = hand
-        self.scoring = scoring #[14, 0, 0, 0, True, True, False, 0, True, True]
-        self.score = score #11001100014 
-        self.playerOn = playerOn
-
-    def scoreScoring(self):
-        total,base = 0,14
-        for i in range(len(self.scoring[0])):
-            total += self.scoring[self.playerOn][i]*base**(i)
-        return total
-
-    def printCards(self):
-        out = []
-        arr = self.convertToArr()
-        ar2 = self.convertToAr2()
-        for i in range(len(arr)):
-            out.append(rankName[arr[i]] + suitName[ar2[i]])
-        return out
-
-    def convertToArr(self):#Arr refers to the Ranks(A-K)
-        Arr = []
-        for i in range(len(self.hand)):
-            card = Card(self.hand[i])
-            Arr.append(card.getRank())
-        return Arr
-
-    def convertToAr2(self):#Ar2 refers to the Suits(♥-♣)
-        Ar2 = []
-        for i in range(len(self.hand)):
-            card = Card(self.hand[i])
-            Ar2.append(card.getSuit())
-        return Ar2
     
-class ScoreHand(): #TODO put in a module
-    def __init__(self, hand = [], scoring = []):
-        self.hand = hand
-        self.scoring = scoring
-        self.Arr = Hand(self.hand).convertToArr()
-        self.Ar2 = Hand(self.hand).convertToAr2()
-        self.scoring = self.scoreHand()
-
-    def scoreHand(self):
-        self.scoring.append([self.HighCard(self.Arr),
-                             self.OnePair(self.Arr),
-                             self.TwoPair(self.Arr),
-                             self.ThreeOfAKind(self.Arr),
-                             self.Straight(self.Arr),
-                             self.Flush(0,4,self.Ar2),
-                             self.FullHouse(self.Arr),
-                             self.FourOfAKind(self.Arr),
-                             self.StraightFlush(self.Arr,self.Ar2),
-                             self.RoyalFlush(self.Arr,self.Ar2)])
-        return self.scoring
-
-
-    #All of this scoring is rellying on the old way of A=13,addone to everything else which is why this will fail for some of the stuff
-    def HighCard (self,Arr): #(vwxyZ)
-        x = Arr[4] #the highest card is always the last varible in the array
-        return x
-                
-    def OnePair (self,Arr): #(WWxyz) or (wXXyz) or (wxYYz) or (wxyZZ)
-        OnePair = 0 #pairs are always next to each other
-        for i in range (4):
-            if (Arr[0 + i] == Arr[1 + i]):
-                OnePair = Arr[0 + i] #So the highest pair is the last one          
-        return OnePair #pairs are always next to each other, so just have to scroll though
-        
-    def TwoPair (self,Arr): #(XXYYz) or (XXyZZ) or (xYYZZ)
-        TwoPair = 0
-        TempArr = Arr
-        for i in range(0,6,2): 
-            TempArr = Arr[:] #this makes TempArr not tied to the original Arr
-            TempArr.remove(TempArr[i]) 
-            if TempArr[0] == TempArr[1]:
-                if TempArr[2] == TempArr[3]:
-                    TwoPair = TempArr[3] 
-        return TwoPair
-
-        
-    def ThreeOfAKind (self,Arr): #(XXXyz) or (xYYYz) or (xyZZZ)
-        ThreeOfAKind = 0
-        for i in range(3):
-            for x in range (1,15):
-                a = [x] * 3
-                if (a == Arr[0+i:3+i]): 
-                    ThreeOfAKind = a[0] 
-        return ThreeOfAKind
-
-    def Straight(self,arr):
-        straight = False
-        a = []
-        a.append(14) #Notice how it starts with 14 this is to include aces
-        for i in range(14): #This draws out an endless straight (14,2,3,4,5,6,7,8,9,10,11,12,13,14)
-            a.append(2+i)   
-        for i in range(len(a)-len(arr) + 1):
-            if (a[0+i:len(arr) + i] == arr): #If that matches with our original array given then it is a straight
-                straight = True
-        return straight
-
-    def Flush (self,start, end, arr): 
-        if (start == len(arr)-1 or start == end):
-            return True
-        elif (arr[start] == arr[start+1]):
-            return self.Flush(start +1,end,arr)
-        else:
-            return False #Since I am adding this I will also have to change the 
-
-    def FullHouse(self,Arr): #(XXYYY) or (XXXYY)
-        FullHouse = False
-        tempArr = Arr[:] 
-        for i in range(2): 
-            if (tempArr[0] == tempArr[1]):
-                if(tempArr[1] == tempArr[2]):
-                    if(tempArr[3] == tempArr[4]): 
-                        FullHouse = True 
-            tempArr = tempArr[2:] + tempArr[:2] 
-        return FullHouse
-
-    def FourOfAKind (self,Arr): #(XXXXy) or (xYYYY)
-        FourOfAKind = 0
-        for i in range(2):
-            for x in range (1,15):
-                a = [x] * 4 #(1111) then (2222) till (14,14,14,14) if these 
-                if (a == Arr[0+i:4+i]): #this is either [0:4] then [1:5] 
-                    return a[0] #This is the highest value whatever the values of a are
-        return FourOfAKind
-
-    def StraightFlush (self,Arr,Ar2):#(Straight) and (Flush)
-        StraightFlush = False
-        if self.Straight(Arr): #a straight flush is a straight 
-            if self.Flush(0,4,Ar2): #and a flush
-                StraightFlush = True
-        return StraightFlush #boolean
-        
-    def RoyalFlush (self,Arr,Ar2):#(Straight Flush) and (High = Ace)
-        RoyalFlush = False
-        if (self.StraightFlush(Arr,Ar2)): #a royal flush is a straight flush
-                if (self.HighCard(Arr) == 14): #with the high card of ace
-                    RoyalFlush = True
-        return RoyalFlush #boolean
+    def Suit(self):
+        return self.index // len(rankName)
 
 if (__name__ == "__main__"):
     main()

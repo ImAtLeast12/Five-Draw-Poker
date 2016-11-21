@@ -2,13 +2,13 @@ from random import *
 NUMCARDS = 52
 DECK = 0
 
-suitName = ("♥", "♦", "♠", "♣")
-rankName = ("A", "2", "3", "4", "5", "6", "7", 
-            "8", "9", "10", "J", "Q", "K")
+suitName =   ("♥", "♦", "♠", "♣")
+rankName =   ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
+rankValue =  ( 14,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 ,  10 ,  11,  12,  13) #This would be usefull by a bunch and a half
 playerName = ("deck", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10","P11")
-isComputer = (False,False,False,False,False,False,False,False,False,False,False)
+isComputer = (True,True,False,False,False,False,False,False,False,False,False)
 
-NUMPLAYERS = 2 #1 <= NUMPLAYERS <= 10
+NUMPLAYERS = 1 #1 <= NUMPLAYERS <= 10
 
 def main():
     '''deck = Deck() #Initilize deck and players
@@ -51,19 +51,101 @@ def main():
 
     deck = Deck() #Initilize deck and players
     player = []
-    for playerOn in range(1,NUMPLAYERS+1): #Adds players to the game
-        player.append(Player(playerOn,playerName[playerOn],isComputer[playerOn]))
+    for playerOn in range(NUMPLAYERS): #Adds players to the game
+        player.append(Player(playerOn+1,playerName[playerOn+1],isComputer[playerOn]))
 
     for i in range(5): #Shuffels the Cards to the players
         for playerOn in range(NUMPLAYERS):
-            player[playerOn].hand.cards.append(Card(assignOpenCard(deck,player[playerOn].playerNum))) #IS THIS BAD?
+            player[playerOn].hand.cards.append(Card(assignOpenCard(deck,player[playerOn].playerNum)))
 
     for playerOn in range(NUMPLAYERS):
+        print(playerOn)
         print("It's " + player[playerOn].name + " Trun")    #Initiates the players turn
         print(player[playerOn].hand.printHand())            #prints the players hand
-        #ScoreThePlayer()
-        #
+        print("\t" + str(player[playerOn].hand.scoreScoring()))
         
+        if (player[playerOn].isComputer):
+            exchangeComputersHand(player[playerOn])
+        else:
+            print("\t" + str(exchangePlayersHand(player[playerOn])))
+
+        #Remove the cards from the players hand
+        #then the player draaws new cards until they have 5
+        print("\t" + str(player[playerOn].hand.scoreScoring()))
+
+def maximizeHighCards(player,keep):
+    for i in range(len(keep)):
+        print(rankValue[player.hand.cards[i].rank()])
+        if (keep[i] == -1):
+            if (rankValue[player.hand.cards[i].rank()] >= 10):
+                keep[i] = True
+            else:
+                keep[i] = False
+    print(keep)
+    
+        
+def scoreThePlayer():
+    print("\tscoreThePlayer()")
+
+def exchangeComputersHand(player):
+    print("\texchangeComputersHand()")
+    keep = [-1]*len(player.hand.cards)
+
+
+    '''player = Player() #I can force the cards to be specific cards like this
+    player.hand.cards = [Card(1),Card(2),Card(3),Card(0),Card(5)]''' 
+    maximizeHighCards(player,keep)
+
+    #Royal Flush, Straight Flush, Four of a kind, Full house, Flush,
+    #Straiht, Three of a Kind, Two pair, pair, high card    <= All types of hands
+
+
+
+    #Royal flush, Straight Flush, Straight, and Flush       <= All of these are similar
+    #Four of a kind, Full house, Three of a kind, Two pair  <= All of these deal with pairs
+
+
+    #Above are garunted to be decent
+    #   If you are close to a flush
+    #   If you are close to a straight
+
+    #High Card
+    
+    ''' PSUDOCODE Herystic Algrithm
+    if (straight or flush):
+        keep all cards
+    elif (hasPairs):
+        keep the good cards
+        
+    elif (is close To a striaght):
+        keep the good cards
+        get rid of the bad cards
+    elif (is close to a flush):
+        keep good cards
+        don't keep the bad cards
+
+    for all cards that havn't been decided on
+        keep cards that are higher than 10
+        don't keep the bad cards
+    '''
+
+def exchangePlayersHand(player):
+    keep = [-1]*len(player.hand.cards)
+    for i in range(len(keep)):
+        waitingForGoodResponce = True
+        while (waitingForGoodResponce):
+            x = input("\t\tWould you like to keep " + str(player.hand.cards[i].printCard()) + " ")
+            x = x.lower()
+            if (x == "yes" or x == "y"):
+                keep[i] = True
+                waitingForGoodResponce = False
+            elif(x == "no" or x == "n"):
+                keep[i] = False
+                waitingForGoodResponce = False
+            else:
+                print("\t\tI don't know what you said")
+    return keep
+    
     
 def scoreCards(hand):
     cards = hand.cards  #=  [39, 3,37,33,47]
@@ -93,44 +175,55 @@ class Player(): #TODO put in a module
 class Hand(): #TODO put in a module
     def __init__(self, cards = []):
         self.cards = []
+        self.scoring = [14, 0, 0, 0, True, True, False, 0, True, True] 
 
     def ranksOfHand(self):
         ranksOfHand = []
         for i in range(len(self.cards)):
-            ranksOfHand.append(self.cards[i].Rank())
+            ranksOfHand.append(self.cards[i].rank())
         return ranksOfHand
     
     def suitsOfHand(self):
         suitsOfHand = []
         for i in range(len(self.cards)):
-            suitsOfHand.append(self.cards[i].Suit())
+            suitsOfHand.append(self.cards[i].suit())
         return suitsOfHand
 
     def printHand(self):
         printOut = []
         for i in range(len(self.cards)):
-            printOut.append(rankName[self.cards[i].Rank()] + suitName[self.cards[i].Suit()])
+            printOut.append(rankName[self.cards[i].rank()] + suitName[self.cards[i].suit()])
         return printOut
         #With the cards that you have it should be able to calculate what kind of hand it has
         #[14, 0, 0, 0, True, True, False, 0, True, True]    ex Royal Flush
-        #11001100014                                           Royal Flsuh
+        #11001100014                                           Royal Flush
 
-class Deck(): #TODO put in a module
+    def scoreScoring(self):
+        total,base = 0,10
+        for i in range(len(self.scoring)):
+            total += self.scoring[i]*10**(i)
+        return total
+
+class Deck(): #Mabey  a better function for this would be to exchange the cards everywhere
     def __init__(self, cards = []):
         self.cards = cards
         for i in range(NUMCARDS):
-            self.cards.append(Card(i))
+            self.cards.append(Card(i)) #In other places I will remove them 
 
 class Card(): #TODO put in a module
     def __init__(self, index, assignedTo = 0):
         self.index = index
         self.assignedTo = assignedTo
 
-    def Rank(self):
+    def rank(self):
         return self.index % len(rankName)
     
-    def Suit(self):
+    def suit(self):
         return self.index // len(rankName)
+
+    def printCard(self):
+        return (rankName[self.rank()] + suitName[self.suit()])
 
 if (__name__ == "__main__"):
     main()
+    

@@ -39,8 +39,6 @@ def main():
         keepGoodCards(player[on],deck,keep)             #gits rid of the cards you don't want keep the cards you do what
         print(player[on].hand.printHand())              #Shows the new Hand
 
-
-
         print(player[on].hand.rank())#This converts my hand to Arr
         print(player[on].hand.suit())#This converts my hand to Ar2
         
@@ -81,7 +79,7 @@ def exchangeComputersHand(player):
                             #Then it can minipulate the hand and send what ever it wants and it will be a hand for funzies
                             #It will swap the cards aroud just as long as I keep the order in mind then I sould be golden
 
-    if (SH.Straight(arr) or SH.Flush(0,len(player.hand.cards),ar2)):
+    if (SH.Straight(arr) or SH.Flush(ar2)):
         keep = [True]*len(player.hand.cards)
     '''elif(hasPairs):
     elif(isCloseToAStraight()):
@@ -149,6 +147,32 @@ class Hand():
         self.cards = []
         self.scoring = [14, 0, 0, 0, True, True, False, 0, True, True]
 
+    def sortHandByRank(self):
+        h = self.hand.rank()
+        for x in range(0,len(h)-1):
+            for y in range(x,len(h)):
+                if (h[x] > h[y]):
+                    temp = h[x]
+                    h[x] = h[y]
+                    h[y] = temp
+                    temp2 = self.hand.cards[x]
+                    self.hand.cards[x] = self.hand.cards[y]
+                    self.hand.cards[y] = temp
+                    return h
+
+    def sortHandBySuit(self):
+        h = self.hand.rank()
+        for x in range(0,len(h)-1):
+            for y in range(x,len(h)):
+                if (h[x] > h[y]):
+                    temp = h[x]
+                    h[x] = h[y]
+                    h[y] = temp
+                    temp2 = self.hand.cards[x]
+                    self.hand.cards[x] = self.hand.cards[y]
+                    self.hand.cards[y] = temp
+                    return h
+                    
     def addCard(self, Card):
         self.cards.append(Card)
         

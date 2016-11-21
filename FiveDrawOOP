@@ -1,4 +1,5 @@
 from random import *
+import ScoringHand as SH
 NUMCARDS = 52
 DECK = 0
 
@@ -27,6 +28,8 @@ def main():
     for on in range(NUMPLAYERS):
         print(player[on].name)
         print(player[on].hand.printHand())              #Players hand is shown
+
+        
         keep = []
         if (player[on].isComputer):
             keep = exchangeComputersHand(player[on])    #Computer says what it wants
@@ -35,6 +38,11 @@ def main():
         print(keep)                                                 #DEVELOPER
         keepGoodCards(player[on],deck,keep)             #gits rid of the cards you don't want keep the cards you do what
         print(player[on].hand.printHand())              #Shows the new Hand
+
+
+
+        print(player[on].hand.rank())#This converts my hand to Arr
+        print(player[on].hand.suit())#This converts my hand to Ar2
         
 
 def keepGoodCards(player,deck,keep):
@@ -59,6 +67,25 @@ def maximizeHighCards(player,keep):
 
 def exchangeComputersHand(player):
     keep = [-1]*len(player.hand.cards)
+
+    
+
+
+    arr = player.hand.rank()
+    ar2 = player.hand.suit()
+
+    arr.sort()
+    ar2.sort()
+    print("Arr" + str(arr))
+    print("Ar2" + str(ar2)) #Instead of doing all of this bull shit I would rather just have it send an objcet of a hand
+                            #Then it can minipulate the hand and send what ever it wants and it will be a hand for funzies
+                            #It will swap the cards aroud just as long as I keep the order in mind then I sould be golden
+
+    if (SH.Straight(arr) or SH.Flush(0,len(player.hand.cards),ar2)):
+        keep = [True]*len(player.hand.cards)
+    '''elif(hasPairs):
+    elif(isCloseToAStraight()):
+    elif(isCloseToAFlush()):'''
     keep = maximizeHighCards(player,keep)
     return keep
 
@@ -133,6 +160,20 @@ class Hand():
         for i in range(len(self.cards)):
             printOut.append(self.cards[i].printCard())
         return printOut
+    
+    def rank(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(rankValue[self.cards[i].rank()])
+        printOut.sort()
+        return printOut
+
+    def suit(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(self.cards[i].suit())
+        printOut.sort()
+        return printOut
 
 class Card(): #TODO put in a module
     def __init__(self, index):
@@ -182,4 +223,3 @@ class Deck():
 
 if (__name__ == "__main__"):
     main()
-    

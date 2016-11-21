@@ -6,9 +6,9 @@ suitName =   ("♥", "♦", "♠", "♣")
 rankName =   ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
 rankValue =  ( 14,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 ,  10 ,  11,  12,  13) #This would be usefull by a bunch and a half
 playerName = ("deck", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10","P11")
-isComputer = (True,True,False,False,False,False,False,False,False,False,False)
+isComputer = (False,False,False,False,False,False,False,False,False,False,False)
 
-NUMPLAYERS = 1 #1 <= NUMPLAYERS <= 10
+NUMPLAYERS = 2 #1 <= NUMPLAYERS <= 10
 
 def main():
     '''deck = Deck() #Initilize deck and players
@@ -59,23 +59,45 @@ def main():
             player[playerOn].hand.cards.append(Card(assignOpenCard(deck,player[playerOn].playerNum)))
 
     for playerOn in range(NUMPLAYERS):
-        print(playerOn)
         print("It's " + player[playerOn].name + " Trun")    #Initiates the players turn
         print(player[playerOn].hand.printHand())            #prints the players hand
         print("\t" + str(player[playerOn].hand.scoreScoring()))
-        
+
+        keep = []
         if (player[playerOn].isComputer):
-            exchangeComputersHand(player[playerOn])
+            keep = exchangeComputersHand(player[playerOn])
         else:
-            print("\t" + str(exchangePlayersHand(player[playerOn])))
+            keep = exchangePlayersHand(player[playerOn])
+        print (keep)
+
+        removeBadCards(keep,player[playerOn],deck)
 
         #Remove the cards from the players hand
         #then the player draaws new cards until they have 5
+
+        print(player[playerOn].hand.printHand())
+        
         print("\t" + str(player[playerOn].hand.scoreScoring()))
 
+        
+
+def removeCard(player,card,deck):
+    card.assingedTo = DECK
+    player.hand.cards.remove(card)
+    
+
+def removeBadCards(keep,player,deck):
+    for i in range(len(keep)):
+        if (keep[i]):
+            pass
+        else:
+            assignOpenCard(deck,player.playerNum)
+            removeCard(player,player.hand.cards[i],deck)
+                     
+
+        
 def maximizeHighCards(player,keep):
     for i in range(len(keep)):
-        print(rankValue[player.hand.cards[i].rank()])
         if (keep[i] == -1):
             if (rankValue[player.hand.cards[i].rank()] >= 10):
                 keep[i] = True
@@ -94,7 +116,7 @@ def exchangeComputersHand(player):
 
     '''player = Player() #I can force the cards to be specific cards like this
     player.hand.cards = [Card(1),Card(2),Card(3),Card(0),Card(5)]''' 
-    maximizeHighCards(player,keep)
+    keep = maximizeHighCards(player,keep)
 
     #Royal Flush, Straight Flush, Four of a kind, Full house, Flush,
     #Straiht, Three of a Kind, Two pair, pair, high card    <= All types of hands
@@ -128,6 +150,7 @@ def exchangeComputersHand(player):
         keep cards that are higher than 10
         don't keep the bad cards
     '''
+    return keep
 
 def exchangePlayersHand(player):
     keep = [-1]*len(player.hand.cards)
@@ -175,7 +198,13 @@ class Player(): #TODO put in a module
 class Hand(): #TODO put in a module
     def __init__(self, cards = []):
         self.cards = []
-        self.scoring = [14, 0, 0, 0, True, True, False, 0, True, True] 
+        self.scoring = [14, 0, 0, 0, True, True, False, 0, True, True]
+
+    def addCard(self, Value):
+        self.cards.append(Card(Value))
+        
+    def removeCard(self,Index):
+        self.cards.remove(Index)
 
     def ranksOfHand(self):
         ranksOfHand = []

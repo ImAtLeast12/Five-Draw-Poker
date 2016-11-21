@@ -38,10 +38,91 @@ def main():
         print(keep)                                                 #DEVELOPER
         keepGoodCards(player[on],deck,keep)             #gits rid of the cards you don't want keep the cards you do what
         print(player[on].hand.printHand())              #Shows the new Hand
+        print(player[on].hand.rank())#This converts my hand to Arr
+        print(player[on].hand.suit())#This converts my hand to Ar2
 
+
+
+
+        print("\n")
+        print(player[on].hand.rank())
+        print("\n Sort by Rank" + str(player[on].hand.sortHandByRank()))
+        
+        print(player[on].hand.printHand())              #Shows the new Hand
+        print(player[on].hand.rank())#This converts my hand to Arr
+        print(player[on].hand.suit())#This converts my hand to Ar2
+
+        print("\n")
+        print(player[on].hand.rank())
+        print("\n Sort by Suit" + str(player[on].hand.sortHandBySuit()))
+        
+        print(player[on].hand.printHand())              #Shows the new Hand
         print(player[on].hand.rank())#This converts my hand to Arr
         print(player[on].hand.suit())#This converts my hand to Ar2
         
+class Hand():
+    def __init__(self, cards = []):
+        self.cards = []
+        self.scoring = [14, 0, 0, 0, True, True, False, 0, True, True]
+
+    def sortHandByRank(self):
+        h = self.rank()
+        for x in range(len(h)-1):
+            for y in range(x,len(h)):
+                if (h[x] > h[y]):
+                    #Swap
+                    temp = h[x]
+                    h[x] = h[y]
+                    h[y] = temp
+                    temp2 = self.cards[x]
+                    self.cards[x] = self.cards[y]
+                    self.cards[y] = temp2
+        return h
+
+
+                
+
+    def sortHandBySuit(self):
+        h = self.suit()
+        for x in range(len(h)-1):
+            for y in range(x,len(h)):
+                if (h[x] > h[y]):
+                    #Swap
+                    temp = h[x]
+                    h[x] = h[y]
+                    h[y] = temp
+                    temp2 = self.cards[x]
+                    self.cards[x] = self.cards[y]
+                    self.cards[y] = temp2
+        return h
+
+                    
+    def addCard(self, Card):
+        self.cards.append(Card)
+        
+    def removeCard(self,Index):
+        self.cards.remove(Index)
+
+    def printHand(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(self.cards[i].printCard())
+        return printOut
+    
+    def rank(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(rankValue[self.cards[i].rank()])
+        #printOut.sort()
+        return printOut
+
+    def suit(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(self.cards[i].suit())
+        #printOut.sort()
+        return printOut
+
 
 def keepGoodCards(player,deck,keep):
     skip = 0
@@ -142,62 +223,6 @@ def exchangePlayersHand(player):
                 print("\t\tI don't know what you said")
     return keep
     
-class Hand():
-    def __init__(self, cards = []):
-        self.cards = []
-        self.scoring = [14, 0, 0, 0, True, True, False, 0, True, True]
-
-    def sortHandByRank(self):
-        h = self.hand.rank()
-        for x in range(0,len(h)-1):
-            for y in range(x,len(h)):
-                if (h[x] > h[y]):
-                    temp = h[x]
-                    h[x] = h[y]
-                    h[y] = temp
-                    temp2 = self.hand.cards[x]
-                    self.hand.cards[x] = self.hand.cards[y]
-                    self.hand.cards[y] = temp
-                    return h
-
-    def sortHandBySuit(self):
-        h = self.hand.rank()
-        for x in range(0,len(h)-1):
-            for y in range(x,len(h)):
-                if (h[x] > h[y]):
-                    temp = h[x]
-                    h[x] = h[y]
-                    h[y] = temp
-                    temp2 = self.hand.cards[x]
-                    self.hand.cards[x] = self.hand.cards[y]
-                    self.hand.cards[y] = temp
-                    return h
-                    
-    def addCard(self, Card):
-        self.cards.append(Card)
-        
-    def removeCard(self,Index):
-        self.cards.remove(Index)
-
-    def printHand(self):
-        printOut = []
-        for i in range(len(self.cards)):
-            printOut.append(self.cards[i].printCard())
-        return printOut
-    
-    def rank(self):
-        printOut = []
-        for i in range(len(self.cards)):
-            printOut.append(rankValue[self.cards[i].rank()])
-        printOut.sort()
-        return printOut
-
-    def suit(self):
-        printOut = []
-        for i in range(len(self.cards)):
-            printOut.append(self.cards[i].suit())
-        printOut.sort()
-        return printOut
 
 class Card(): #TODO put in a module
     def __init__(self, index):

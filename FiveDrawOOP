@@ -1,290 +1,587 @@
 from random import *
+
 import ScoringHand as SH
+
 NUMCARDS = 52
+
 DECK = 0
 
+
+
 suitName =   ("♥", "♦", "♠", "♣")
+
 rankName =   ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
+
 rankValue =  ( 14,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 ,  10 ,  11,  12,  13) #This would be usefull by a bunch and a half
+
 playerName = ("deck", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10","P11")
+
 isComputer = (True,False,False,False,False,False,False,False,False,False,False)
+
+
 
 NUMPLAYERS = 1 #1 <= NUMPLAYERS <= 10
 
+
+
 def main():
+
     deck = Deck() #Initilize deck and players
+
     player = []
+
     
+
     #print(deck.printOut())                                      #DEVELOPER This will print the deck's current state
+
     #print(player[on].printStats())                              #DEVELOPER This will print the all the stats of a given player
+
     
+
     for on in range(NUMPLAYERS):
+
         player.append(Player(playerName[on+1], on+1, isComputer[on]))
+
         
+
     for i in range(5):
+
         for on in range(NUMPLAYERS):
+
             player[on].hand.addCard(deck.giveRandom()) #Make this generate a random card in the deck'''
 
+
+
     for on in range(NUMPLAYERS):
+
         print(player[on].name)
-        print(player[on].hand.printHand())              #Players hand is shown
+
+        input(player[on].hand.printHand())              #Players hand is shown
+
 
         
+        
+
         keep = []
+
         if (player[on].isComputer):
+
             keep = exchangeComputersHand(player[on])    #Computer says what it wants
+
         else:
+
             keep = exchangePlayersHand(player[on])      #User says what they want
+
         print(keep)                                                 #DEVELOPER
+
         keepGoodCards(player[on],deck,keep)             #gits rid of the cards you don't want keep the cards you do what
 
-        print(player[on].hand.printHand())              #Shows the new Hand
+
+
+        input(player[on].hand.printHand())              #Shows the new Hand
+
         print(player[on].hand.rank())#This converts my hand to Arr
+
         print(player[on].hand.suit())#This converts my hand to Ar2
 
+
+
         print("\n")
+
         print(player[on].hand.rank())
+
         print("\n Sort by Rank" + str(player[on].hand.sortHandByRank()))
-        print(player[on].hand.printHand())              #Shows the new Hand
+
+        input(player[on].hand.printHand())              #Shows the new Hand
+
         print(player[on].hand.rank())#This converts my hand to Arr
+
         print(player[on].hand.suit())#This converts my hand to Ar2
 
+
+
         print("\n")
+
         print(player[on].hand.rank())
+
         print("\n Sort by Suit" + str(player[on].hand.sortHandBySuit()))
-        print(player[on].hand.printHand())              #Shows the new Hand
+
+        input(player[on].hand.printHand())              #Shows the new Hand
+
         print(player[on].hand.rank())#This converts my hand to Arr
+
         print(player[on].hand.suit())#This converts my hand to Ar2
+
+
 
         print(str(player[on].hand.scoreHand()))
 
+        print(player[on].hand.scoreScoreBoard())
+
+
+
 def keepGoodCards(player,deck,keep):
+
     skip = 0
+
     for i in range(len(keep)):
+
         if(keep[i]):
+
             pass
+
         else:
+
             deck.cards.append(player.hand.cards[i - skip])
+
             player.hand.cards.remove(player.hand.cards[i - skip])
+
             player.hand.addCard(deck.giveRandom())
+
             skip += 1
+
     
+
 def maximizeHighCards(player,keep):
+
     for i in range(len(keep)):
+
         if (keep[i] == -1):
+
             if (rankValue[player.hand.cards[i].rank()] >= 10):
+
                 keep[i] = True
+
             else:
+
                 keep[i] = False
+
     return keep
 
+
+
 def exchangeComputersHand(player):
+
     keep = [-1]*len(player.hand.cards)
 
+
+
     
+
+
+
 
 
     arr = player.hand.rank()
+
     ar2 = player.hand.suit()
 
+
+
     arr.sort()
+
     ar2.sort()
+
     print("Arr" + str(arr))
+
     print("Ar2" + str(ar2)) #Instead of doing all of this bull shit I would rather just have it send an objcet of a hand
+
                             #Then it can minipulate the hand and send what ever it wants and it will be a hand for funzies
+
                             #It will swap the cards aroud just as long as I keep the order in mind then I sould be golden
 
-    if (SH.Straight(arr) or SH.Flush(ar2)):
+
+
+    '''if (SH.Straight(arr) or SH.Flush(ar2)):
+
         keep = [True]*len(player.hand.cards)
-    '''elif(hasPairs):
+
+    elif(hasPairs):
+
     elif(isCloseToAStraight()):
+
     elif(isCloseToAFlush()):'''
+
     keep = maximizeHighCards(player,keep)
+
     return keep
 
+
+
     '''player = Player() #I can force the cards to be specific cards like this
+
     player.hand.cards = [Card(1),Card(2),Card(3),Card(0),Card(5)]
+
     keep = maximizeHighCards(player,keep)
+
     
 
+
+
     #Royal Flush, Straight Flush, Four of a kind, Full house, Flush,
+
     #Straiht, Three of a Kind, Two pair, pair, high card    <= All types of hands
 
 
 
+
+
+
+
     #Royal flush, Straight Flush, Straight, and Flush       <= All of these are similar
+
     #Four of a kind, Full house, Three of a kind, Two pair  <= All of these deal with pairs
 
 
+
+
+
     #Above are garunted to be decent
+
     #   If you are close to a flush
+
     #   If you are close to a straight
 
+
+
     #High Card
+
     
+
     PSUDOCODE Herystic Algrithm
+
     if (straight or flush):
+
         keep all cards
+
     elif (hasPairs):
+
         keep the good cards
+
         
+
     elif (is close To a striaght):
+
         keep the good cards
+
         get rid of the bad cards
+
     elif (is close to a flush):
+
         keep good cards
+
         don't keep the bad cards
+
+
 
     for all cards that havn't been decided on
+
         keep cards that are higher than 10
+
         don't keep the bad cards
+
     '''
 
+
+
 def exchangePlayersHand(player):
+
     keep = [-1]*len(player.hand.cards)
+
     for i in range(len(keep)):
+
         waitingForGoodResponce = True
+
         while (waitingForGoodResponce):
+
             x = input("\t\tWould you like to keep " + str(player.hand.cards[i].printCard()) + " ")
+
             x = x.lower()
+
             if (x == "yes" or x == "y"):
+
                 keep[i] = True
+
                 waitingForGoodResponce = False
+
             elif(x == "no" or x == "n"):
+
                 keep[i] = False
+
                 waitingForGoodResponce = False
+
             else:
+
                 print("\t\tI don't know what you said")
+
     return keep
 
+
+
 class Card(): #TODO put in a module
+
     def __init__(self, index):
+
         self.index = index
 
+
+
     def rank(self):
+
         return self.index % len(rankName)
+
     
+
     def suit(self):
+
         return self.index // len(rankName)
 
+
+
     def printCard(self):
+
         return (rankName[self.rank()] + suitName[self.suit()])
 
+
+
 class Player(): 
+
     def __init__(self, name = "defalt", playerNum = 1, isComputer = False): #I can set all of these
+
         self.playerNum = playerNum
+
         self.name = name 
+
         self.isComputer = isComputer
+
         self.hand = Hand()
 
+
+
     def printStats(self):
+
         printOut = []
+
         printOut.append(self.name)
+
         printOut.append(self.playerNum)
+
         printOut.append(self.isComputer)
+
         printOut.append(self.hand.printHand())
+
         return printOut
+
         
+
 class Deck(): 
+
     def __init__(self):
+
         self.cards = []
+
         for i in range(NUMCARDS):
+
             self.cards.append(Card(i)) #In other places I will remove them
 
+
+
     def printOut(self):
+
         printOut = []
+
         for i in range(len(self.cards)):
+
             printOut.append(self.cards[i].printCard())
+
         return printOut
+
+
 
     def giveRandom(self):
+
         randCard = int(random() * len(self.cards))
+
         randCard = self.cards[randCard]
+
         self.cards.remove(randCard)
+
         return randCard
+
     
+
 class Hand():
+
     def __init__(self, cards = []):
+
         self.cards = []
-        self.scoring = [14, 0, 0, 0, True, True, False, 0, True, True]
+
+    def scoreScoreBoard(self):
+        total,base = (0,10)
+        scoreBoard = self.scoreHand()
+        for i in range(len(scoreBoard)):
+            #   print ("i = " + str(scoreBoard[i]*base**i))
+            total += scoreBoard[i]*base**i
+        return total
+
+
 
     def sortHandByRank(self):
+
         h = self.rank()
+
         for x in range(len(h)-1):
+
             for y in range(x,len(h)):
+
                 if (h[x] > h[y]):
+
                     #Swap
+
                     temp = h[x]
+
                     h[x] = h[y]
+
                     h[y] = temp
+
                     temp2 = self.cards[x]
+
                     self.cards[x] = self.cards[y]
+
                     self.cards[y] = temp2
+
         return h
+
     
+
     def sortHandBySuit(self):
+
         h = self.suit()
+
         for x in range(len(h)-1):
+
             for y in range(x,len(h)):
+
                 if (h[x] > h[y]):
+
                     #Swap
+
                     temp = h[x]
+
                     h[x] = h[y]
+
                     h[y] = temp
+
                     temp2 = self.cards[x]
+
                     self.cards[x] = self.cards[y]
+
                     self.cards[y] = temp2
+
         return h
+
                     
+
     def addCard(self, Card):
+
         self.cards.append(Card)
+
         
+
     def removeCard(self,Index):
+
         self.cards.remove(Index)
 
+
+
     def printHand(self):
+
         printOut = []
+
         for i in range(len(self.cards)):
+
             printOut.append(self.cards[i].printCard())
+
         return printOut
+
     
+
     def rank(self):
+
         printOut = []
+
         for i in range(len(self.cards)):
+
             printOut.append(rankValue[self.cards[i].rank()])
-        #printOut.sort()
+
         return printOut
+
+
 
     def suit(self):
+
         printOut = []
+
         for i in range(len(self.cards)):
+
             printOut.append(self.cards[i].suit())
-        #printOut.sort()
+
         return printOut
 
+
+
     def rankSorted(self):
-        x = self.suit()
+
+        x = self.rank()
+
         x.sort()
+
         return x
+
     
+
     def suitSorted(self):
+
         x = self.suit()
+
         x.sort()
+
         return x
+
     
+
     def scoreHand(self):
-        scoreChart = [SH.HighCard(self.rankSorted()),
-                    SH.OnePair(self.rankSorted()),
-                    SH.TwoPair(self.rankSorted()),
-                    SH.ThreeOfAKind(self.rankSorted()),
-                    SH.Straight(self.rankSorted()),
-                    SH.Flush(self.suitSorted()),
-                    SH.FullHouse(self.rankSorted()),
-                    SH.FourOfAKind(self.rankSorted()),
-                    SH.StraightFlush(self.rankSorted(),self.suitSorted()),
-                    SH.RoyalFlush(self.rankSorted(),self.suitSorted())]
+        rank = self.rankSorted()
+        suit = self.suitSorted()
+
+        scoreChart = [#rank[0],rank[1],rank[2],rank[3], #I am not sure if this completely breaks ties or if that is how the rules work or not
+
+                    SH.HighCard(rank),
+
+                    SH.OnePair(rank),
+
+                    SH.TwoPair(rank),
+
+                    SH.ThreeOfAKind(rank),
+
+                    SH.Straight(rank),
+
+                    SH.Flush(suit),
+
+                    SH.FullHouse(rank),
+
+                    SH.FourOfAKind(rank),
+
+                    SH.StraightFlush(rank,suit),
+
+                    SH.RoyalFlush(rank,suit)]
+
         return scoreChart
 
 
+
+
+
 if (__name__ == "__main__"):
+
     main()

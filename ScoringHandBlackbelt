@@ -1,192 +1,68 @@
-import FiveDrawOOP as ICG
+import FiveDrawPoker as FDP
 
-
-def HighCard (Arr): #(vwxyZ)
-
-    HighCard = Arr[4] #the highest card is always the last varible in the array
-
-    return HighCard
-
+def HighCard (rank):
+    return rank[4]
             
+def OnePair (rank): #(WWxyz) or (wXXyz) or (wxYYz) or (wxyZZ)
+    for i in range(len(rank) -1,0,-1):
+        if (rank[i] == rank [i-1]):
+            return rank[i-1]
+    return 0
 
-#1 PAIR 
-
-def OnePair (Arr): #(WWxyz) or (wXXyz) or (wxYYz) or (wxyZZ)
-
-    OnePair = 0 #pairs are always next to each other
-
-    for i in range (4):
-
-        if (Arr[0 + i] == Arr[1 + i]):
-
-            OnePair = Arr[0 + i] #So the highest pair is the last one          
-
-    return OnePair #pairs are always next to each other, so just have to scroll though
-
+def TwoPair (rank): #(XXYYz)(XXyZZ)(xYYZZ)
+    #I want to count how many pairs I have
+    numPairs,lastPair,i = 0,0,0
+    while i < len(rank) - 1:
+        if (rank[i] == rank[i+1]):
+            numPairs += 1
+            lastPair = rank[i+1]
+            i+=1 #This skips the next one
+        i+=1
+    if (numPairs >= 2):
+        return lastPair
+    else:
+        return 0
+     
+def ThreeOfAKind (rank): #(XXXyz)(xYYYz)(xyZZZ)
+    if (rank.count(rank[2]) >= 3):
+        return rank[2]
+    return 0
+ 
+def Straight(rank): #Each one assends in value
+    straightList = list(FDP.rankValue)
+    straightList.append(14)
+    for x in range(2): 
+        for i in range(10):
+            if (rank == straightList[0+i:5+i]):
+                return HighCard(rank)
+        rank = rank[-1:] + rank[:-1] #this puts the max at the end in the case for ace
+    return 0
+         
+def Flush(suit): #(ZZZZZ)
+    if suit.count(suit[0]) == 5:
+        return True
+    return False
     
+def FullHouse(rank): #(XXYYY) or (XXXYY)
+    minTimes = rank.count(rank[0])
+    maxTimes = rank.count(rank[4])
+    if (minTimes == 2 and maxTimes == 3) or (minTimes == 3 and maxTimes == 2):
+        return HighCard(rank)
+    return 0
 
-#2 PAIR 
-
-def TwoPair (Arr): #(XXYYz) or (XXyZZ) or (xYYZZ)
-
-    TwoPair = 0
-
-    TempArr = Arr
-
-    for i in range(0,6,2): 
-
-        TempArr = Arr[:] #this makes TempArr not tied to the original Arr
-
-        TempArr.remove(TempArr[i]) 
-
-        if TempArr[0] == TempArr[1]:
-
-            if TempArr[2] == TempArr[3]:
-
-                TwoPair = TempArr[3] 
-
-    return TwoPair
-
-
-
+def FourOfAKind(rank): #(XXXXy) or (xYYYY)
+    if (rank.count(rank[2]) == 4):
+        return rank[2]
+    return 0
     
-
-#3 OF A KIND 
-
-def ThreeOfAKind (Arr): #(XXXyz) or (xYYYz) or (xyZZZ)
-
-    ThreeOfAKind = 0
-
-    for i in range(3):
-
-        for x in range (1,15):
-
-            a = [x] * 3
-
-            if (a == Arr[0+i:3+i]): 
-
-                ThreeOfAKind = a[0] 
-
-    return ThreeOfAKind
-
-
-
-#STRAIGHT 
-
-def Straight (Arr): #(2,3,4,5,6) til (10,J,Q,K,A)
-
-    Straight = False
-
-    
-
-    a = [-1] * (len(ICG.rankName) + 1)
-
-    for i in range(len(ICG.rankName) + 1): 
-
-        a[i] = i + 1 
-
-
-
-    for i in range(len(ICG.rankName) - 3):
-
-        if (a[0+i:5+i] == Arr): 
-
-            Straight = True
-
-    return Straight
-
-
-
-#FLUSH Ar2 
-
-def Flush (Ar2): #(XXXXX)
-
-    Flush = False 
-
-    a = [0] * (len(ICG.suitName) + 1)
-
-    for i in range (len(ICG.suitName) + 1):
-
-        if (a == Ar2):
-
-            Flush = True
-
-        a = [i] * (len(ICG.suitName) + 1) 
-
-    return Flush #boolean
-
-    
-
-#FULL HOUSE 
-
-def FullHouse(Arr): #(XXYYY) or (XXXYY)
-
-    FullHouse = False
-
-    tempArr = Arr[:] 
-
-    for i in range(2): 
-
-        if (tempArr[0] == tempArr[1]):
-
-            if(tempArr[1] == tempArr[2]):
-
-                if(tempArr[3] == tempArr[4]): 
-
-                    FullHouse = True 
-
-        tempArr = tempArr[2:] + tempArr[:2] 
-
-    return FullHouse
-
-
-
-#FOUR OF A KIND 
-
-def FourOfAKind (Arr): #(XXXXy) or (xYYYY)
-
-    FourOfAKind = 0
-
-    for i in range(2):
-
-        for x in range (1,15):
-
-            a = [x] * 4 #(1111) then (2222) till (14,14,14,14) if these 
-
-            if (a == Arr[0+i:4+i]): #this is either [0:4] then [1:5] 
-
-                return a[0] #This is the highest value whatever the values of a are
-
-    return FourOfAKind
-
-
-
-#STRAIGH FLUSH 
-
-def StraightFlush (Arr,Ar2):#(Straight) and (Flush)
-
-    StraightFlush = False
-
-    if Straight(Arr): #a straight flush is a straight 
-
-        if Flush(Ar2): #and a flush
-
-            StraightFlush = True
-
-    return StraightFlush #boolean
-
-    
-
-#ROYAL FLUSH 
-
-def RoyalFlush (Arr,Ar2):#(Straight Flush) and (High = Ace)
-
-    RoyalFlush = False
-
-    if (StraightFlush(Arr,Ar2)): #a royal flush is a straight flush
-
-            if (HighCard(Arr) == 14): #with the high card of ace
-
-                RoyalFlush = True
-
-    return RoyalFlush #boolean
+def StraightFlush(rank,suit): #Straight and Flush
+    if Straight(rank):
+        if Flush(suit):
+            return True
+    return False
+
+def RoyalFlush(rank,suit): #Straight Flush and HighCard = 14
+    if StraightFlush(rank,suit):
+        if(HighCard(rank) == 14):
+            return True
+    return False

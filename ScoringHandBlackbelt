@@ -1,107 +1,192 @@
-#import CardGameLogic
-import InitilizingCardGameBlackbelt as ICG
-#Keep note that Arr and Ar2 are sorted from least to greatest
-#Arr and Ar2 make up the players 'hand'
-#Arr = Rank
-#Ar2 = Suit
+import FiveDrawOOP as ICG
 
-#I have a format in perinthesis what it means broken down
-#lowercase is not needed for solving the problem
-#upercase is needed for solving the problem
-#letters that are the same are the same for the given array
 
-#High Card
 def HighCard (Arr): #(vwxyZ)
+
     HighCard = Arr[4] #the highest card is always the last varible in the array
+
     return HighCard
+
             
+
 #1 PAIR 
+
 def OnePair (Arr): #(WWxyz) or (wXXyz) or (wxYYz) or (wxyZZ)
+
     OnePair = 0 #pairs are always next to each other
+
     for i in range (4):
+
         if (Arr[0 + i] == Arr[1 + i]):
+
             OnePair = Arr[0 + i] #So the highest pair is the last one          
+
     return OnePair #pairs are always next to each other, so just have to scroll though
+
     
+
 #2 PAIR 
+
 def TwoPair (Arr): #(XXYYz) or (XXyZZ) or (xYYZZ)
+
     TwoPair = 0
+
     TempArr = Arr
+
     for i in range(0,6,2): 
+
         TempArr = Arr[:] #this makes TempArr not tied to the original Arr
+
         TempArr.remove(TempArr[i]) 
+
         if TempArr[0] == TempArr[1]:
+
             if TempArr[2] == TempArr[3]:
+
                 TwoPair = TempArr[3] 
+
     return TwoPair
 
+
+
     
+
 #3 OF A KIND 
+
 def ThreeOfAKind (Arr): #(XXXyz) or (xYYYz) or (xyZZZ)
+
     ThreeOfAKind = 0
+
     for i in range(3):
+
         for x in range (1,15):
+
             a = [x] * 3
+
             if (a == Arr[0+i:3+i]): 
+
                 ThreeOfAKind = a[0] 
+
     return ThreeOfAKind
 
+
+
 #STRAIGHT 
-def Straight(arr):
-    straight = False
-    a = []
-    a.append(14)
-    for i in range(14): #This draws out an endless straight (14,2,3,4,5,6,7,8,9,10,11,12,13,14)
-        a.append(2+i)   #Notice how it starts with 14 this is to include aces
-    for i in range(len(a)-len(arr)):
-        if (a[0+i:len(arr) + i] == arr): #If that matches with our original array given then it is a straight
-            straight = True
-    return straight
+
+def Straight (Arr): #(2,3,4,5,6) til (10,J,Q,K,A)
+
+    Straight = False
+
+    
+
+    a = [-1] * (len(ICG.rankName) + 1)
+
+    for i in range(len(ICG.rankName) + 1): 
+
+        a[i] = i + 1 
+
+
+
+    for i in range(len(ICG.rankName) - 3):
+
+        if (a[0+i:5+i] == Arr): 
+
+            Straight = True
+
+    return Straight
+
+
 
 #FLUSH Ar2 
-def Flush (start, end, arr): 
-    if (start == len(arr)-1 or start == end):
-        return True
-    elif (arr[start] == arr[start+1]):
-        return flush(start +1,end,arr)
-    else:
-        return False #Since I am adding this I will also have to change the 
+
+def Flush (Ar2): #(XXXXX)
+
+    Flush = False 
+
+    a = [0] * (len(ICG.suitName) + 1)
+
+    for i in range (len(ICG.suitName) + 1):
+
+        if (a == Ar2):
+
+            Flush = True
+
+        a = [i] * (len(ICG.suitName) + 1) 
+
+    return Flush #boolean
 
     
+
 #FULL HOUSE 
+
 def FullHouse(Arr): #(XXYYY) or (XXXYY)
+
     FullHouse = False
+
     tempArr = Arr[:] 
+
     for i in range(2): 
+
         if (tempArr[0] == tempArr[1]):
+
             if(tempArr[1] == tempArr[2]):
+
                 if(tempArr[3] == tempArr[4]): 
+
                     FullHouse = True 
+
         tempArr = tempArr[2:] + tempArr[:2] 
+
     return FullHouse
 
+
+
 #FOUR OF A KIND 
+
 def FourOfAKind (Arr): #(XXXXy) or (xYYYY)
+
     FourOfAKind = 0
+
     for i in range(2):
+
         for x in range (1,15):
+
             a = [x] * 4 #(1111) then (2222) till (14,14,14,14) if these 
+
             if (a == Arr[0+i:4+i]): #this is either [0:4] then [1:5] 
+
                 return a[0] #This is the highest value whatever the values of a are
+
     return FourOfAKind
 
+
+
 #STRAIGH FLUSH 
+
 def StraightFlush (Arr,Ar2):#(Straight) and (Flush)
+
     StraightFlush = False
+
     if Straight(Arr): #a straight flush is a straight 
+
         if Flush(Ar2): #and a flush
+
             StraightFlush = True
+
     return StraightFlush #boolean
+
     
+
 #ROYAL FLUSH 
+
 def RoyalFlush (Arr,Ar2):#(Straight Flush) and (High = Ace)
+
     RoyalFlush = False
+
     if (StraightFlush(Arr,Ar2)): #a royal flush is a straight flush
+
             if (HighCard(Arr) == 14): #with the high card of ace
+
                 RoyalFlush = True
+
     return RoyalFlush #boolean

@@ -1,7 +1,6 @@
 from random import *
 import ScoringHand as SH
 NUMCARDS = 52
-DECK = 0
 
 suitName =   ("♥", "♦", "♠", "♣")
 rankName =   ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
@@ -18,10 +17,9 @@ def main():
     #print(player[on].printStats())                              #DEVELOPER This will print the all the stats of a given player
 
     print(deck.printOut())
-    print("\n")
+    print("Show the Deck\n")
     #shuffle(deck.cards)
     #print("\n")
-    #print(deck.printOut())
     #print("\n")
     for on in range(NUMPLAYERS):
         player.append(Player(playerName[on+1], on+1, isComputer[on])) #Creates a player # gives the name # gives the player number # tells if it is a computer or not
@@ -31,8 +29,23 @@ def main():
             player[on].hand.addCard(deck.giveRandom()) #Make this generate a random card in the deck'''
 
     for on in range(NUMPLAYERS):
-        print(player[on].name)
-        print(player[on].hand.printHand())              #Players hand is shown
+        print("It's " + player[on].name + "'s turn")
+        
+        input("hand " + str(player[on].hand.printHand()))              #Players hand is shown
+
+
+        #player[on].hand.cards = [Card(12),Card(9),Card(23),Card(11),Card(8)] #This makes the player have a royal flush #I can change it so that it works for any hand
+
+        #deck.printOut()
+
+
+        print("\n")
+        print(player[on].hand.rank())
+        #print("\n Sort by Rank" + str(player[on].hand.sortHandByRank()))
+        player[on].hand.sortHandByRank()
+        input("sort hand by rank" + str(player[on].hand.printHand()))              #Shows the new Hand
+        print(player[on].hand.rank())           #This converts my hand to Arr
+        print(player[on].hand.suit())           #This converts my hand to Ar2
 
         
         keep = []
@@ -40,18 +53,11 @@ def main():
             keep = exchangeComputersHand(player[on])    #Computer says what it wants
         else:
             keep = exchangePlayersHand(player[on])      #User says what they want
-        print(keep)                                                 #DEVELOPER
+
+        print(str(keep) + "What they will keep ")                                                 #DEVELOPER
         keepGoodCards(player[on],deck,keep)             #gits rid of the cards you don't want keep the cards you do what
 
-        print(player[on].hand.printHand())              #Shows the new Hand
-        print(player[on].hand.rank())           #This converts my hand to Arr
-        print(player[on].hand.suit())           #This converts my hand to Ar2
-
-        print("\n")
-        print(player[on].hand.rank())
-        #print("\n Sort by Rank" + str(player[on].hand.sortHandByRank()))
-        player[on].hand.sortHandByRank()
-        print(player[on].hand.printHand())              #Shows the new Hand
+        input("new hand " + str(player[on].hand.printHand()))              #Shows the new Hand
         print(player[on].hand.rank())           #This converts my hand to Arr
         print(player[on].hand.suit())           #This converts my hand to Ar2
 
@@ -59,14 +65,65 @@ def main():
         print(player[on].hand.rank())
         #print("\n Sort by Suit" + str(player[on].hand.sortHandBySuit()))
         player[on].hand.sortHandBySuit()
-        print(player[on].hand.printHand())              #Shows the new Hand
+        input("sort hand by suit" + str(player[on].hand.printHand()))              #Shows the new Hand
         print(player[on].hand.rank())           #This converts my hand to Arr
         print(player[on].hand.suit())           #This converts my hand to Ar2
-
-        print(str(player[on].hand.scoreHand()))
+        #player[on].hand.cards = [Card(0),Card(9),Card(10),Card(11),Card(12)] #This makes the player have a royal flush #I can change it so that it works for any hand
+        print("Score the hand"+ str(player[on].hand.chart()))
+        print(player[on].hand.scoreChart())
         print(deck.printOut())
+        
+def closeToFlush(ar2):
+    for value in ar2:
+        if (ar2.count(value) >= 3):
+            keep = [False]*5
+            for i in range(5):
+                if (ar2[i] == value):
+                    keep[i] = True
+            return keep
+    return -1
+
+def closeToStraight(arr):
+    #first make the bool array that tells if one is close
+    rV = list(rankValue)
+    rV.remove(14)
+    rV.append(14)
+    #print(rV)
+    boolRank = [False]*13
+    for i in arr:
+        boolRank[i-2] = True #this is working just like on the board but I need to slide the thing to see the last part
+                                #after that I will then need to find the lastgest value and start from there to tell me the keep
+    nextStep = []
+    maxKeep = -1
+    maxRank = -1
+    for i in range(len(boolRank)-5):
+        if (boolRank[0+i:5+i].count(True) > 3):
+            if (boolRank[0+i:5+i].count(True) > maxRank ):                
+                maxRank = boolRank[0+i:5+i].count(True) #MaxRank = 4
+                maxKeep = boolRank[0+i:5+i]             #maxKeep = [T,T,F,T,T] 
+    return maxRank,maxKeep
+
+
+def keepIndexes(arr):
+    keep  = [False]*5
+    for i in findAnyPairs(arr):
+        keep[i] = True
+    return keep
+
+def findAnyPairs(arr): #These are sorted from least to greatest so if there is a pair then it will be next to each other
+    similarIndex = []
+    for i in range(len(arr) - 1):
+        if (arr[0+i] == arr[1+i]):
+            similarIndex.append(0+i) #it adds it to the ones that are the same
+            similarIndex.append(1+i)
+    similarIndex = list(set(similarIndex)) #I need to get rid of the doubles that I will have
+    return similarIndex #This is great because it can do pair, 2 pair, 3 of a kind, full house, and 4 of a kind all in one function
+    
 def keepGoodCards(player,deck,keep):
+    print("keepGoodCards(player,deck,keep)"+str(keep))
     skip = 0
+    if (str(type(keep)) == "<class 'int'>"):
+        return 0
     for i in range(len(keep)):
         if(keep[i]):
             pass
@@ -88,9 +145,6 @@ def maximizeHighCards(player,keep):
 def exchangeComputersHand(player):
     keep = [-1]*len(player.hand.cards)
 
-    
-
-
     arr = player.hand.rank()
     ar2 = player.hand.suit()
 
@@ -100,48 +154,17 @@ def exchangeComputersHand(player):
     print("Ar2" + str(ar2))                 #Instead of doing all of this bull shit I would rather just have it send an objcet of a hand
                                             #Then it can minipulate the hand and send what ever it wants and it will be a hand for funzies
                                             #It will swap the cards aroud just as long as I keep the order in mind then I sould be golden
-
-    '''if (SH.Straight(arr) or SH.Flush(ar2)):
-        keep = [True]*len(player.hand.cards)
-    elif(hasPairs):
-    elif(isCloseToAStraight()):
-    elif(isCloseToAFlush()):'''
-    keep = maximizeHighCards(player,keep)
+    if (SH.Straight(arr) or SH.Flush(ar2)): #This works
+        return [True]*len(player.hand.cards)
+    elif(findAnyPairs(arr)) != []:
+        return keepIndexes(arr)
+    elif(closeToStraight(arr)!= -1,-1):
+        maxRank,maxKeep = closeToStraight(arr)
+        return maxKeep
+    elif(closeToFlush(ar2)!=-1): #Before I do this though I will need to sort it to suit
+        return closeToFlush(ar2)
+    keep = maximizeHighCards(player,keep) #Before I do this I will have to sort it back to rank
     return keep
-
-    '''player = Player() #I can force the cards to be specific cards like this
-    player.hand.cards = [Card(1),Card(2),Card(3),Card(0),Card(5)]
-    keep = maximizeHighCards(player,keep)
-    
-    #Royal Flush, Straight Flush, Four of a kind, Full house, Flush,
-    #Straiht, Three of a Kind, Two pair, pair, high card    <= All types of hands
-
-    #Royal flush, Straight Flush, Straight, and Flush       <= All of these are similar
-    #Four of a kind, Full house, Three of a kind, Two pair  <= All of these deal with pairs
-
-    #Above are garunted to be decent
-    #   If you are close to a flush
-    #   If you are close to a straight
-
-    Maximize High Card for everything else
-
-    PSUDOCODE Herystic Algrithm
-    if (straight or flush):
-        keep all cards
-    elif (hasPairs):
-        keep the good cards
-        
-    elif (is close To a striaght):
-        keep the good cards
-        get rid of the bad cards
-    elif (is close to a flush):
-        keep good cards
-        don't keep the bad cards
-
-    for all cards that havn't been decided on
-        keep cards that are higher than 10
-        don't keep the bad cards
-    '''
 
 def exchangePlayersHand(player):
     keep = [-1]*len(player.hand.cards)
@@ -209,7 +232,15 @@ class Deck():
 class Hand():
     def __init__(self, cards = []):
         self.cards = []
-        
+
+    def scoreChart(self):
+        total,base = (0,100)
+        chart = self.chart()
+        for i in range(len(chart)):
+            #   print ("i = " + str(scoreBoard[i]*base**i))
+            total += chart[i]*base**i
+        return total
+ 
     def sortHandByRank(self):
         for x in range(len(self.cards)-1):
             for y in range(x,len(self.cards)):
@@ -260,11 +291,11 @@ class Hand():
         x.sort()
         return x
     
-    def scoreHand(self):
+    def chart(self):
         rank = self.rankSorted()
         suit = self.suitSorted()
         
-        scoreChart = [#rank[0],rank[1],rank[2],rank[3], #Breaks Extra ties
+        scoreChart = [rank[0],rank[1],rank[2],rank[3], #rank[4], #Breaks Extra ties
                     SH.HighCard(rank),
                     SH.OnePair(rank),
                     SH.TwoPair(rank),
@@ -276,7 +307,6 @@ class Hand():
                     SH.StraightFlush(rank,suit),
                     SH.RoyalFlush(rank,suit)]
         return scoreChart
-
-
+    
 if (__name__ == "__main__"):
     main()

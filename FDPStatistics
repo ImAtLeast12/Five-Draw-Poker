@@ -1,0 +1,379 @@
+'''
+for i in counter:
+	total += i
+'''#to calculate the total 
+
+from random import *
+import ScoringHand as SH
+import ICG
+import sys
+NUMCARDS = 52
+
+suitName =   ("♥", "♦", "♠", "♣")
+rankName =   ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
+rankValue =  ( 14,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 ,  10 ,  11,  12,  13) #This would be usefull by a bunch and a half
+typeOfHand = ("High Card", "Pair", "Two Pair","Three of a Kind", "Straight", "Flush", "Full House", "Four of a Kind", "Straight Flush", "Royal Flush")
+
+DEBUGMODE = False
+ICG.NUMPLAYERS = 1  #It seams 5 is best for some reason when there are 6 players it isn't very good porbably becasue of the maximize high cards
+runMax = 26190
+
+counter = [0]*10
+
+#Sample 1 for 100 Royal flushes
+#counter = [3571213, 4463145, 994984, 537276, 100928, 128281, 86813, 16573, 507, 100]
+#total runs for sample 1: 9978390
+
+#Sample 2 for 100 Royal flushes
+#counter = [2767652, 3460396, 770847, 416806, 78076, 99362, 67197, 12805, 429, 100]
+#total runs for sample 2: 7673670
+
+
+
+
+'''
+iupui stats center MAC for stats
+UL 2135D 2nd floor 
+'''
+
+sys.setrecursionlimit(runMax+200)
+
+def totalCounter(counter):
+    total = 0
+    for i in counter:
+        total += i
+    return total
+
+def main(runs,counter):
+
+    if (runs != 0):
+        deck = Deck() #Initilize deck and players
+        player = []
+        
+        for on in range(ICG.NUMPLAYERS):
+            player.append(Player(ICG.playerName[on+1], on+1, ICG.isComputer[on]))
+            
+        for i in range(5):
+            for on in range(ICG.NUMPLAYERS):
+                player[on].hand.addCard(deck.giveRandom()) #Make this generate a random card in the deck
+                
+        scores = []
+        for on in range(ICG.NUMPLAYERS):
+            if (DEBUGMODE): print("It's " + player[on].name + "'s turn")#input("It's " + player[on].name + "'s turn")
+            #player[on].hand.cards = [Card(12),Card(9),Card(23),Card(11),Card(8)] #Lets me cheat for debugging purpouses 
+            player[on].hand.sortHandByRank()
+            if (DEBUGMODE): print("hand " + str(player[on].hand.printHand()))#input("hand " + str(player[on].hand.printHand()))              #Players hand is shown
+            keep = []
+            if (player[on].isComputer):
+                keep = exchangeComputersHand(player[on])    #Computer says what it wants
+            else:
+                keep = exchangePlayersHand(player[on])      #User says what they want                                                #DEVELOPER
+            if (DEBUGMODE): print("keep\t" + str(keep))
+            keepGoodCards(player[on],deck,keep)             #gits rid of the cards you don't want keep the cards you do what
+            
+            if (DEBUGMODE): print("new hand " + str(player[on].hand.printHand())) #input("new hand " + str(player[on].hand.printHand()))              #Shows the new Hand
+            if (DEBUGMODE): print("Score the hand"+ str(player[on].hand.chart()))
+            if (DEBUGMODE): print(player[on].hand.scoreChart())
+            player[on].score = player[on].hand.scoreChart()
+            if (DEBUGMODE):print(len(deck.printOut()))
+            if (DEBUGMODE):print(deck.printOut())
+            scores.append(player[on].hand.scoreChart())
+            if (DEBUGMODE): print("\n")
+        
+        if (DEBUGMODE):print("Player: " + ICG.playerName[scores.index(max(scores)) + 1] + " wins with " + withWhat(max(scores)))#input("Player: " + ICG.playerName[scores.index(max(scores)) + 1] + " wins with " + withWhat(max(scores)))
+        if (DEBUGMODE):
+            if (withWhat(max(scores)) == "Four of a Kind" or withWhat(max(scores)) == "Straight Flush" or withWhat(max(scores)) == "Royal Flush"):
+                exit()
+        for i in range(10):
+            if (withWhat(max(scores)) == typeOfHand[i]):
+                counter[i]+=1
+        main(runs-1,counter)
+def exchangeComputersHand(player):
+    keep = [-1]*5
+    
+    arr = player.hand.rankSorted()
+    ar2 = player.hand.suitSorted()
+
+    maxRank,maxKeep = closeToStraight(arr)
+    closeToFlushVar = closeToFlush(ar2)
+
+    if (SH.Straight(arr) or SH.Flush(ar2)): 
+        return [True]*len(player.hand.cards)
+    elif(findAnyPairs(arr)) != []:
+        return keepIndexes(arr)
+    elif(maxKeep != -1):#this is for straight
+        return maxKeep
+    player.hand.sortHandBySuit() #flush deals with suit
+    if(closeToFlushVar != -1): 
+        return closeToFlushVar
+    player.hand.sortHandByRank() #highcards are by rank
+    return maximizeHighCards(player) 
+
+def exchangePlayersHand(player):
+    keep = [-1]*len(player.hand.cards)
+    for i in range(len(keep)):
+        waitingForGoodResponce = True
+        while (waitingForGoodResponce):
+            x = input("\t\tKeep " + str(player.hand.cards[i].printCard()) + ": ")
+            x = x.lower()
+            if (x == "yes" or x == "y"):
+                keep[i] = True
+                waitingForGoodResponce = False
+            elif(x == "no" or x == "n"):
+                keep[i] = False
+                waitingForGoodResponce = False
+            else:
+                print("\t\tI don't know what you said")
+    return keep
+
+def withWhat(score):
+    for exp in range(15):
+        if (score//(100**exp) < 99):
+            return typeOfHand[exp - 4]
+    
+def closeToFlush(ar2):
+    for value in ar2:
+        if (ar2.count(value) >= 3):
+            keep = [False]*5
+            for i in range(5):
+                if (ar2[i] == value):
+                    keep[i] = True
+            return keep
+    return -1
+
+def closeToStraight(arr):
+    #first make the bool array that tells if one is close
+    rV = list(rankValue)
+    rV.remove(14)
+    rV.append(14)
+    #print(rV)
+    boolRank = [False]*13
+    for i in arr:
+        boolRank[i-2] = True #this is working just like on the board but I need to slide the thing to see the last part
+                                #after that I will then need to find the lastgest value and start from there to tell me the keep
+    nextStep = []
+    maxKeep = -1
+    maxRank = -1
+    for i in range(len(boolRank)-5):
+        if (boolRank[0+i:5+i].count(True) > 3):
+            if (boolRank[0+i:5+i].count(True) > maxRank ):                
+                maxRank = boolRank[0+i:5+i].count(True) #MaxRank = 4
+                maxKeep = boolRank[0+i:5+i]             #maxKeep = [T,T,F,T,T] 
+    return maxRank,maxKeep
+
+def keepIndexes(arr):
+    keep  = [False]*5
+    for i in findAnyPairs(arr):
+        keep[i] = True
+    return keep
+
+def findAnyPairs(arr): #These are sorted from least to greatest so if there is a pair then it will be next to each other
+    similarIndex = []
+    for i in range(len(arr) - 1):
+        if (arr[0+i] == arr[1+i]):
+            similarIndex.append(0+i) #it adds it to the ones that are the same
+            similarIndex.append(1+i)
+    similarIndex = list(set(similarIndex)) #I need to get rid of the doubles that I will have
+    return similarIndex #This is great because it can do pair, 2 pair, 3 of a kind, full house, and 4 of a kind all in one function
+    
+def keepGoodCards(player,deck,keep):
+    skip = 0
+    if (str(type(keep)) == "<class 'int'>"):
+        return 0
+    for i in range(len(keep)):
+        if(keep[i]):
+            pass
+        else:
+            deck.cards.append(player.hand.cards[i - skip])
+            player.hand.cards.remove(player.hand.cards[i - skip])
+            player.hand.addCard(deck.giveRandom())
+            skip += 1
+    
+def maximizeHighCards(player):
+    keep = []
+    for i in player.hand.rank():
+        if (i >= 10):
+            keep.append(True)
+        else:
+            keep.append(False)
+    return keep
+    
+class Deck(): 
+    def __init__(self):
+        self.cards = []
+        for i in range(NUMCARDS):
+            self.cards.append(Card(i)) #In other places I will remove them
+
+    def printOut(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(self.cards[i].printCard())
+        return printOut
+
+    def giveRandom(self):
+        randCard = int(random() * len(self.cards))
+        randCard = self.cards[randCard]
+        self.cards.remove(randCard)
+        return randCard
+    
+class Player(): 
+    def __init__(self, name = "defalt", playerNum = 1, isComputer = False): #I can set all of these
+        self.playerNum = playerNum
+        self.name = name 
+        self.isComputer = isComputer
+        self.hand = Hand()
+
+    def printStats(self):
+        printOut = []
+        printOut.append(self.name)
+        printOut.append(self.playerNum)
+        printOut.append(self.isComputer)
+        printOut.append(self.hand.printHand())
+        return printOut
+    
+class Hand():
+    def __init__(self, cards = []):
+        self.cards = []
+        
+    def addCard(self, Card):
+        self.cards.append(Card)
+        
+    def removeCard(self,Index):
+        self.cards.remove(Index)
+    
+    def rank(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(rankValue[self.cards[i].rank()])
+        return printOut
+
+    def suit(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(self.cards[i].suit())
+        return printOut
+
+    def rankSorted(self):
+        x = self.rank()
+        x.sort()
+        return x
+    
+    def suitSorted(self):
+        x = self.suit()
+        x.sort()
+        return x
+    
+    def sortHandByRank(self):
+        for x in range(len(self.cards)-1):
+            for y in range(x,len(self.cards)):
+                if (self.cards[x].rank() > self.cards[y].rank()): #Swap if the first is bigger than the other
+                    temp = self.cards[x]
+                    self.cards[x] = self.cards[y]
+                    self.cards[y] = temp
+
+    def sortHandBySuit(self):
+        for x in range(len(self.cards)-1):
+            for y in range(x,len(self.cards)):
+                if (self.cards[x].suit() > self.cards[y].suit()): #Swap if the first is bigger than the other
+                    temp = self.cards[x]
+                    self.cards[x] = self.cards[y]
+                    self.cards[y] = temp
+
+    def printHand(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(self.cards[i].printCard())
+        return printOut
+    
+    def scoreChart(self):
+        total,base = (0,100)
+        chart = self.chart()
+        for i in range(len(chart)):
+            total += chart[i]*base**i
+        return total
+    
+    def chart(self):
+        rank = self.rankSorted()
+        suit = self.suitSorted()
+        
+        scoreChart = [rank[0],rank[1],rank[2],rank[3], #Breaks ties for lower ranked cards
+                    SH.HighCard(rank),
+                    SH.OnePair(rank),
+                    SH.TwoPair(rank),
+                    SH.ThreeOfAKind(rank),
+                    SH.Straight(rank),
+                    SH.Flush(suit),
+                    SH.FullHouse(rank),
+                    SH.FourOfAKind(rank),
+                    SH.StraightFlush(rank,suit),
+                    SH.RoyalFlush(rank,suit)]
+        return scoreChart
+    
+class Card():
+    def __init__(self, index):
+        self.index = index
+
+    def rank(self):
+        return self.index % len(rankName)
+    
+    def suit(self):
+        return self.index // len(rankName)
+
+    def printCard(self):
+        return (rankName[self.rank()] + suitName[self.suit()])
+    
+if (__name__ == "__main__"):
+    while(True):
+        main(runMax,counter)
+        #for i in range(20):
+            #main(runMax,counter) #2min 30sec
+        #vs 1 takes 7.4 seconds
+        print("counter = "+ str(counter))
+        #print("total runs: " + str(totalCounter(counter)) )
+
+'''
+Hyristics
+    
+clean code
+    Law of demeter - make more varibles to what I am reffrencing 
+    redundent comments
+    naming variables
+
+data structures
+    objects
+    lists
+    tuples
+    modules
+'''
+
+
+#Things that I am going to say in my speach.
+'''Say that the game works like a normal card game'''
+#bring out a deck of cards
+
+'''Cards are shuffled in a deck'''
+#shuffle the cards
+
+'''cards are dealt to the players hands'''
+#deal cards out to players
+
+'''players can choose keep or discard any cards in their hands'''
+
+'''and who ever has the best hand wins'''
+
+#Run the program
+'''The game'''
+'''The game works by shuffling the cards in the deck'''
+'''The first player is up'''
+
+'''#Run the program
+Explain how the game works "the game works by scoring the hand, seeing if the player is a computer or not
+if it is a computer then it will chose the cards that are good automatically
+if it is not then the player will chose what ever cards they want"
+
+"The game will score the players hand and move on to the next one"
+
+It will then see who has the largest score and declare that player as a winner.
+It can then say what they won with
+
+Run the program without developer tools'''

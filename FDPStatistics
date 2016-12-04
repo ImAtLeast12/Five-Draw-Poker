@@ -14,12 +14,16 @@ rankName =   ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
 rankValue =  ( 14,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 ,  10 ,  11,  12,  13) #This would be usefull by a bunch and a half
 typeOfHand = ("High Card", "Pair", "Two Pair","Three of a Kind", "Straight", "Flush", "Full House", "Four of a Kind", "Straight Flush", "Royal Flush")
 
-DEBUGMODE = False
-ICG.NUMPLAYERS = 1  #It seams 5 is best for some reason when there are 6 players it isn't very good porbably becasue of the maximize high cards
+DEBUGMODE = True
+STATSMODE = True
+DISPLAYTEXT = DEBUGMODE and not STATSMODE
+
+ICG.NUMPLAYERS = 2  #It seams 5 is best for some reason when there are 6 players it isn't very good porbably becasue of the maximize high cards
 runMax = 26190
 
 counter = [0]*10
 sys.setrecursionlimit(runMax+200)
+
 
 def totalCounter(counter):
     total = 0
@@ -27,7 +31,8 @@ def totalCounter(counter):
         total += i
     return total
 
-def main(runs,counter):#runs,counter):
+def main(runs,counter):
+    
     if (runs != 0):
         deck = Deck() #Initilize deck and players
         player = []
@@ -41,35 +46,32 @@ def main(runs,counter):#runs,counter):
                 
         scores = []
         for on in range(ICG.NUMPLAYERS):
-            if (DEBUGMODE): print("It's " + player[on].name + "'s turn")#input("It's " + player[on].name + "'s turn")
+            if (not STATSMODE): print("It's " + player[on].name + "'s turn")#input("It's " + player[on].name + "'s turn")
             #player[on].hand.cards = [Card(0),Card(12),Card(11),Card(10),Card(9)] #Lets me cheat for debugging purpouses 
             player[on].hand.sortHandByRank()
-            if (DEBUGMODE): print("hand " + str(player[on].hand.printHand()))#input("hand " + str(player[on].hand.printHand()))              #Players hand is shown
+            if (not STATSMODE): print("hand " + str(player[on].hand.printHand()))#input("hand " + str(player[on].hand.printHand()))              #Players hand is shown
             keep = []
             if (player[on].isComputer):
                 keep = exchangeComputersHand(player[on])    #Computer says what it wants
             else:
                 keep = exchangePlayersHand(player[on])      #User says what they want                                                #DEVELOPER
-            if (DEBUGMODE): print("keep\t" + str(keep))
+            if (DISPLAYTEXT): print("keep\t" + str(keep))
             keepGoodCards(player[on],deck,keep)             #gits rid of the cards you don't want keep the cards you do what
             
-            if (DEBUGMODE): print("new hand " + str(player[on].hand.printHand())) #input("new hand " + str(player[on].hand.printHand()))              #Shows the new Hand
-            if (DEBUGMODE): print("Score the hand"+ str(player[on].hand.chart()))
-            if (DEBUGMODE): print(player[on].hand.scoreChart())
+            if (not STATSMODE): print("new hand " + str(player[on].hand.printHand())) #input("new hand " + str(player[on].hand.printHand()))              #Shows the new Hand
+            if (DISPLAYTEXT): print("Score the hand"+ str(player[on].hand.chart()))
+            if (DISPLAYTEXT): print(player[on].hand.scoreChart())
             player[on].score = player[on].hand.scoreChart()
-            if (DEBUGMODE):print(len(deck.printOut()))
-            if (DEBUGMODE):print(deck.printOut())
+            if (DISPLAYTEXT):print(len(deck.printOut()))
+            if (DISPLAYTEXT):print(deck.printOut())
             scores.append(player[on].hand.scoreChart())
-            if (DEBUGMODE): print("\n")
+            if (not STATSMODE): print("\n")
         
-        if (DEBUGMODE):print("Player: " + ICG.playerName[scores.index(max(scores)) + 1] + " wins with " + withWhat(max(scores)))#input("Player: " + ICG.playerName[scores.index(max(scores)) + 1] + " wins with " + withWhat(max(scores)))
-        if (DEBUGMODE):
-            if (withWhat(max(scores)) == "Four of a Kind" or withWhat(max(scores)) == "Straight Flush" or withWhat(max(scores)) == "Royal Flush"):
-                exit()
+        if (not STATSMODE):print("Player: " + ICG.playerName[scores.index(max(scores)) + 1] + " wins with " + withWhat(max(scores)))#input("Player: " + ICG.playerName[scores.index(max(scores)) + 1] + " wins with " + withWhat(max(scores)))
         for i in range(10):
             if (withWhat(max(scores)) == typeOfHand[i]):
                 counter[i]+=1
-        if not (DEBUGMODE):main(runs-1,counter)
+        if (STATSMODE):main(runs-1,counter)
 def exchangeComputersHand(player):
     keep = [-1]*5
     
@@ -305,9 +307,9 @@ class Card():
         return (rankName[self.rank()] + suitName[self.suit()])
     
 if (__name__ == "__main__"):
-    if DEBUGMODE:
+    if not STATSMODE:
         main(1,[0]*10)
-    while not (DEBUGMODE):
+    while (STATSMODE):
         main(runMax,counter)
         print("counter = "+ str(counter))
         print("total runs: " + str(totalCounter(counter)))

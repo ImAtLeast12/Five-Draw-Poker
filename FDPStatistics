@@ -7,8 +7,8 @@ from random import *
 import ScoringHand as SH
 import ICG
 import sys
-NUMCARDS = 52
 
+NUMCARDS = 52
 suitName =   ("♥", "♦", "♠", "♣")
 rankName =   ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
 rankValue =  ( 14,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 ,  10 ,  11,  12,  13) #This would be usefull by a bunch and a half
@@ -19,23 +19,6 @@ ICG.NUMPLAYERS = 1  #It seams 5 is best for some reason when there are 6 players
 runMax = 26190
 
 counter = [0]*10
-
-#Sample 1 for 100 Royal flushes
-#counter = [3571213, 4463145, 994984, 537276, 100928, 128281, 86813, 16573, 507, 100]
-#total runs for sample 1: 9978390
-
-#Sample 2 for 100 Royal flushes
-#counter = [2767652, 3460396, 770847, 416806, 78076, 99362, 67197, 12805, 429, 100]
-#total runs for sample 2: 7673670
-
-
-
-
-'''
-iupui stats center MAC for stats
-UL 2135D 2nd floor 
-'''
-
 sys.setrecursionlimit(runMax+200)
 
 def totalCounter(counter):
@@ -44,8 +27,7 @@ def totalCounter(counter):
         total += i
     return total
 
-def main(runs,counter):
-
+def main(runs,counter):#runs,counter):
     if (runs != 0):
         deck = Deck() #Initilize deck and players
         player = []
@@ -60,7 +42,7 @@ def main(runs,counter):
         scores = []
         for on in range(ICG.NUMPLAYERS):
             if (DEBUGMODE): print("It's " + player[on].name + "'s turn")#input("It's " + player[on].name + "'s turn")
-            #player[on].hand.cards = [Card(12),Card(9),Card(23),Card(11),Card(8)] #Lets me cheat for debugging purpouses 
+            #player[on].hand.cards = [Card(0),Card(12),Card(11),Card(10),Card(9)] #Lets me cheat for debugging purpouses 
             player[on].hand.sortHandByRank()
             if (DEBUGMODE): print("hand " + str(player[on].hand.printHand()))#input("hand " + str(player[on].hand.printHand()))              #Players hand is shown
             keep = []
@@ -87,7 +69,7 @@ def main(runs,counter):
         for i in range(10):
             if (withWhat(max(scores)) == typeOfHand[i]):
                 counter[i]+=1
-        main(runs-1,counter)
+        if not (DEBUGMODE):main(runs-1,counter)
 def exchangeComputersHand(player):
     keep = [-1]*5
     
@@ -323,57 +305,10 @@ class Card():
         return (rankName[self.rank()] + suitName[self.suit()])
     
 if (__name__ == "__main__"):
-    while(True):
+    if DEBUGMODE:
+        main(1,[0]*10)
+    while not (DEBUGMODE):
         main(runMax,counter)
-        #for i in range(20):
-            #main(runMax,counter) #2min 30sec
-        #vs 1 takes 7.4 seconds
         print("counter = "+ str(counter))
-        #print("total runs: " + str(totalCounter(counter)) )
+        print("total runs: " + str(totalCounter(counter)))
 
-'''
-Hyristics
-    
-clean code
-    Law of demeter - make more varibles to what I am reffrencing 
-    redundent comments
-    naming variables
-
-data structures
-    objects
-    lists
-    tuples
-    modules
-'''
-
-
-#Things that I am going to say in my speach.
-'''Say that the game works like a normal card game'''
-#bring out a deck of cards
-
-'''Cards are shuffled in a deck'''
-#shuffle the cards
-
-'''cards are dealt to the players hands'''
-#deal cards out to players
-
-'''players can choose keep or discard any cards in their hands'''
-
-'''and who ever has the best hand wins'''
-
-#Run the program
-'''The game'''
-'''The game works by shuffling the cards in the deck'''
-'''The first player is up'''
-
-'''#Run the program
-Explain how the game works "the game works by scoring the hand, seeing if the player is a computer or not
-if it is a computer then it will chose the cards that are good automatically
-if it is not then the player will chose what ever cards they want"
-
-"The game will score the players hand and move on to the next one"
-
-It will then see who has the largest score and declare that player as a winner.
-It can then say what they won with
-
-Run the program without developer tools'''

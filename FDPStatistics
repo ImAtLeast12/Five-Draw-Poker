@@ -1,8 +1,6 @@
-'''
-for i in counter:
-	total += i
-'''#to calculate the total 
-
+#I want to make it so that cards in the deck work like in real life
+#Shuffling
+#and Cards are drawn from the top of the deck instead of pulling a random card
 from random import *
 import ScoringHand as SH
 import ICG
@@ -14,22 +12,26 @@ rankName =   ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
 rankValue =  ( 14,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 ,  10 ,  11,  12,  13) #This would be usefull by a bunch and a half
 typeOfHand = ("High Card", "Pair", "Two Pair","Three of a Kind", "Straight", "Flush", "Full House", "Four of a Kind", "Straight Flush", "Royal Flush")
 
+ICG.NUMPLAYERS = 2
+
+
+#Sample .58 for stupid AI
+#counter = [44553740, 37556882, 4227466, 1874652, 350109, 174505, 128867, 21333, 1178, 128]
+#total runs: 88888860
+#counter = [60395333, 50916676, 5728094, 2543432, 474677, 236532, 174683, 28983, 1605, 175]
+#total runs: 120500190
+
 DEBUGMODE = True
 STATSMODE = True
+
+STUPIDAI = True
 DISPLAYTEXT = DEBUGMODE and not STATSMODE
 
-ICG.NUMPLAYERS = 2  #It seams 5 is best for some reason when there are 6 players it isn't very good porbably becasue of the maximize high cards
+if STATSMODE: ICG.NUMPLAYERS = 1
 runMax = 26190
 
 counter = [0]*10
 sys.setrecursionlimit(runMax+200)
-
-
-def totalCounter(counter):
-    total = 0
-    for i in counter:
-        total += i
-    return total
 
 def main(runs,counter):
     
@@ -52,7 +54,10 @@ def main(runs,counter):
             if (not STATSMODE): print("hand " + str(player[on].hand.printHand()))#input("hand " + str(player[on].hand.printHand()))              #Players hand is shown
             keep = []
             if (player[on].isComputer):
-                keep = exchangeComputersHand(player[on])    #Computer says what it wants
+                if STUPIDAI:
+                    keep = exchangeStupidAI(player[on])
+                else:
+                    keep = exchangeComputersHand(player[on])    #Computer says what it wants
             else:
                 keep = exchangePlayersHand(player[on])      #User says what they want                                                #DEVELOPER
             if (DISPLAYTEXT): print("keep\t" + str(keep))
@@ -72,6 +77,34 @@ def main(runs,counter):
             if (withWhat(max(scores)) == typeOfHand[i]):
                 counter[i]+=1
         if (STATSMODE):main(runs-1,counter)
+
+def totalCounter(counter):
+    total = 0
+    for i in counter:
+        total += i
+    return total
+
+def keepGoodCards(player,deck,keep):
+    skip = 0
+    if (str(type(keep)) == "<class 'int'>"):
+        return 0
+    for i in range(len(keep)):
+        if(keep[i]):
+            pass
+        else:
+            badCard = player.hand.cards[i - skip]
+            deck.cards.append(badCard)
+            player.hand.removeCard(badCard)
+            player.hand.addCard(deck.giveRandom())
+            skip += 1
+
+
+def exchangeStupidAI(player):
+    x = []
+    for i in range(5):x.append(bool(int(random() * 2)))
+    return x
+        
+            
 def exchangeComputersHand(player):
     keep = [-1]*5
     
@@ -130,7 +163,6 @@ def closeToStraight(arr):
     rV = list(rankValue)
     rV.remove(14)
     rV.append(14)
-    #print(rV)
     boolRank = [False]*13
     for i in arr:
         boolRank[i-2] = True #this is working just like on the board but I need to slide the thing to see the last part
@@ -160,19 +192,6 @@ def findAnyPairs(arr): #These are sorted from least to greatest so if there is a
     similarIndex = list(set(similarIndex)) #I need to get rid of the doubles that I will have
     return similarIndex #This is great because it can do pair, 2 pair, 3 of a kind, full house, and 4 of a kind all in one function
     
-def keepGoodCards(player,deck,keep):
-    skip = 0
-    if (str(type(keep)) == "<class 'int'>"):
-        return 0
-    for i in range(len(keep)):
-        if(keep[i]):
-            pass
-        else:
-            deck.cards.append(player.hand.cards[i - skip])
-            player.hand.cards.remove(player.hand.cards[i - skip])
-            player.hand.addCard(deck.giveRandom())
-            skip += 1
-    
 def maximizeHighCards(player):
     keep = []
     for i in player.hand.rank():
@@ -181,12 +200,13 @@ def maximizeHighCards(player):
         else:
             keep.append(False)
     return keep
-    
+
 class Deck(): 
     def __init__(self):
         self.cards = []
         for i in range(NUMCARDS):
             self.cards.append(Card(i)) #In other places I will remove them
+        shuffle(self.cards)
 
     def printOut(self):
         printOut = []
@@ -195,10 +215,9 @@ class Deck():
         return printOut
 
     def giveRandom(self):
-        randCard = int(random() * len(self.cards))
-        randCard = self.cards[randCard]
-        self.cards.remove(randCard)
-        return randCard
+        topCard = self.cards[0]
+        self.cards.remove(topCard)
+        return topCard
     
 class Player(): 
     def __init__(self, name = "defalt", playerNum = 1, isComputer = False): #I can set all of these
@@ -214,11 +233,11 @@ class Player():
         printOut.append(self.isComputer)
         printOut.append(self.hand.printHand())
         return printOut
-    
+
 class Hand():
     def __init__(self, cards = []):
         self.cards = []
-        
+    
     def addCard(self, Card):
         self.cards.append(Card)
         
@@ -312,5 +331,4 @@ if (__name__ == "__main__"):
     while (STATSMODE):
         main(runMax,counter)
         print("counter = "+ str(counter))
-        print("total runs: " + str(totalCounter(counter)))
-
+        if DEBUGMODE: print("total runs: " + str(totalCounter(counter)))

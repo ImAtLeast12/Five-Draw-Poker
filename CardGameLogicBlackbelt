@@ -1,242 +1,182 @@
-""" FIVE CARD DRAW POKER
-    basic card game framework
-    keeps track of card locations for as many hands as needed"""
+#I want to make it so that cards in the deck work like in real life
+#Shuffling
+#and Cards are drawn from the top of the deck instead of pulling a random card
 from random import *
-import ScoringHandBlackbelt as SH
-import InitilizingCardGameBlackbelt as ICG
+import ScoringHand as SH
+import ICG
+import sys
 
-def main():
-    scores = [[-1 for i in range(len(ICG.wonWith))] for j in range(ICG.numPlayers)] #make a 2d array called scores[#posibleHands][#players]
-    clearDeck() #put all of the cards into the deck, none are any of the players
-    #ShuffleCards()
-    for i in range(5): #give 5 cards to everyone playing this will be their hand
-        for playerOn in range (1,ICG.numPlayers + 1): 
-            assignCard(playerOn) 
-    ICG.playerOn = 1 #Start at 1 because 0 is for deck
-    while ICG.playerOn <= ICG.numPlayers: #Keep going until I am on the last player
-        #PrintName()
-        print("\nIt is "+ ICG.playerName[ICG.playerOn] + "'s Turn") #Display whos turn it is
-        #ScoreHand()
-        Arr,Ar2 = Sort(scoreHand(ICG.playerOn))         
-        scores = ScorePlayer(Arr,Ar2,ICG.playerOn, scores) #I am putting this here for the purposes of AI it can be ignored if you are just the player because it will be updated anyways
-        #PrintScores()
-        print (scores) #KEEP FOR DEBUGING
-        #Print what their best hand is
-        for i in range(len(ICG.wonWith)): 
-            #print (scores[ICG.playerOn-1][i])
-            if (scores[ICG.playerOn-1][i] != 0):
-                print(ICG.wonWith[9-i]) #This tells me what they won with, i.e HighCard or Royal Flush
-                print(scores[ICG.playerOn -1][i]) #This tells me what the type of card won with is i.e 13 = king
-        #ShowHand()
-        showHand(ICG.playerOn) #Shows players hand
+NUMCARDS = 52
+suitName =   ("♥", "♦", "♠", "♣")
+rankName =   ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
+rankValue =  ( 14,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 ,  10 ,  11,  12,  13) #This would be usefull by a bunch and a half
+typeOfHand = ("High Card", "Pair", "Two Pair","Three of a Kind", "Straight", "Flush", "Full House", "Four of a Kind", "Straight Flush", "Royal Flush")
 
-        
-        #ExchangeHand() 
-        '''if (isComp[ICG.playerOn]):
-            exchangeComputerHand()
-        else:
-            exchangePlayerHand()'''
-        
-        print("Arr" + str(Arr)) #Delete Later THIS IS SORTED
-        print("Ar2" + str(Ar2) + "\n") #Delete Later THIS IS SORTED This is bad because I need to know the index
-        
-        print("scoreHand" + str(scoreHand(ICG.playerOn)) + "\n") #Delete Later THIS IS NOT SORTED
-
-        print("Computer keeps")
-        exchangeComputerHand(ICG.playerOn,Sort(scoreHand(ICG.playerOn)))
+ICG.NUMPLAYERS = 10  
+ICG.isComputer = (True,True,True,True,True,True,True,True,True,True)
+ICG.playerName = ("deck","P1","P2","P3","P4","P5","P6","P7","P8","P9","P10")
 
 
+DEBUGMODE = True    #This lets you see everything you are changing
+STATSMODE = False   #This is another statistics mode except it only compares itself 
+STUPIDAI = False        #so you need to state if you want a dumb AI or a Smart AI
 
+DISPLAYTEXT = DEBUGMODE and not STATSMODE
 
-        print("\n"*8)
-        exchangeHand(ICG.playerOn, scoreHand(ICG.playerOn)) #exchange hand cards in the players hand
+if STATSMODE: ICG.NUMPLAYERS = 1
+runMax = 26190
 
-        
-        #This is where I need to exchange hand for the computer
-        #So far I have that it knows what the best score is
-        #So given that information it needs to decide which is the best option with its hand
-        #Assume Arr works as normaly
-        #Assume Ar2 works as normaly
+counter = [0]*10
+sys.setrecursionlimit(runMax+200)
 
-
-        #make a function called exchangeCompHand(playerOn,hand)
-        #   This will borrow elements from exchangeHand(playerOn, hand)
-        #   Diffrences obvoiously are that the computer can't have any input
-        #   So it will have to decide for it's self how to handle it
-
-        #Goals
-        #Get rid of inputs
+def main(runs,counter):
     
+    if (runs != 0):
+        deck = Deck() #Initilize deck and players
+        player = []
         
-
-
-
+        for on in range(ICG.NUMPLAYERS):
+            player.append(Player(ICG.playerName[1+on], on+1, ICG.isComputer[on]))
             
-        #PrintNewHand()
-        print("\nNEW HAND") #DELET
-        #ShowHand()
-        showHand(ICG.playerOn) #show the new hand of the player
-        #EndPlayersTurn
-        print("End Player " + ICG.playerName[ICG.playerOn] + "'s Turn")
-        #Add Spaces()
-        print("_ "* 15)
-        #ScorePlayer()
-        Arr,Ar2 = Sort(scoreHand(ICG.playerOn))         #Split them to Arr which focuses on the ranks and Ar2 which focuses on the suit
-        scores = ScorePlayer(Arr,Ar2,ICG.playerOn, scores) #Then using that information I will produce the scores for each player in a 2D array
-
-        for i in range(len(ICG.wonWith)):
-            #print (scores[ICG.playerOn-1][i])
-            if (scores[ICG.playerOn-1][i] != 0):
-                print(ICG.wonWith[9-i]) #This tells me what they won with, i.e HighCard or Royal Flush
-                print(scores[ICG.playerOn -1][i]) #This tells me what the type of card won with is i.e 13 = king
-
-        #GoToNextPlayer()
-        ICG.playerOn += 1 #Go to the next player
-        if (ICG.playerOn -1 == ICG.numPlayers):
-            wait = input ("Pass to Player " + ICG.playerName[ICG.playerOn - ICG.numPlayers] + "\n" * 3) #pass to the first player if you are on the last player
-        else:
-            wait = input ("Pass to Player " + ICG.playerName[ICG.playerOn] + "\n" * 3) #otherwise pass to the next player
-    
-        #This is the magic that calculates the scores
-        #all of the cards are assigned to the correct players in cardLoc
-
-
-    #When done with the loop I will be Scoring the players
-            
-    print (str(scores) + "\n")
-    
-    if (ICG.numPlayers == 1): #tells who won unless there is only 1 player then it would be redundent
-        pass
-    else:
-        evaluateScores = Evaluate(scores)
-        theWinnerIndex = (evaluateScores.index(max(evaluateScores)) + 1)
-        print(ICG.playerName[theWinnerIndex] + " wins with " + withWhat(theWinnerIndex-1,scores))
-    
-
-
-
-
-def exchangeHand (playerOn, hand): #This lets me exchange cards
-    ar3 = [-1] * 5 #This represents a bool Arr that will say if I want to exchange the cards or not #I set to -1 so if it donsn't go allthe way through it will give an error
-    print("In the form of y/n")
-    for i in range (5):
-        keepGoing = True
-        while keepGoing:
-            #printCard(hand[i]) #prints the card you are on in terms of i #DELETE
-            exchangeStr = input("Would you like to keep " + blankOfBlank(hand[i]) +": ") #Hand[i] represents the index in cardLoc
-            if (exchangeStr.upper() == "YES" or exchangeStr.upper() == "Y"):
-                ar3[i] = True  #it will keep this card
-                keepGoing = False #It will go to the next card
-            elif (exchangeStr.upper() == "NO" or exchangeStr.upper() == "N"):
-                ar3[i] = False #it won't keep this card
-                keepGoing = False #It will go to the next Card
+        for i in range(5):
+            for on in range(ICG.NUMPLAYERS):
+                player[on].hand.addCard(deck.giveRandom()) #Make this generate a random card in the deck
+                
+        scores = []
+        for on in range(ICG.NUMPLAYERS):
+            if (not STATSMODE): print("It's " + player[on].name + "'s turn")
+            player[on].hand.sortHandByRank()
+            if (not STATSMODE): print("hand " + str(player[on].hand.printHand()))       #Players hand is shown
+            keep = []
+            if (player[on].isComputer):
+                if STUPIDAI:
+                    keep = exchangeStupidAI(player[on])
+                else:
+                    keep = exchangeComputersHand(player[on])                            #Computer says what it wants
             else:
-                print("I don't know what you said") #prints that I don't understand then restates the confirmation for the card
-                #Since keepGoing = True it will try again on the same card
-    for i in range(5):
-        if not (ar3[i]):#if ar3[i] = False then exchange
-            ICG.cardLoc[hand[i]] = ICG.DECK #It will set the card the player had and send it to the deck
-            assignCard(playerOn) #It will give the player a new card inside the deck
+                keep = exchangePlayersHand(player[on])                                  #User says what they want
+            if (DISPLAYTEXT): print("keep\t" + str(keep))
+            keepGoodCards(player[on],deck,keep)                                         #gits rid of the cards you don't want keep the cards you do what
+            
+            if (not STATSMODE): print("new hand " + str(player[on].hand.printHand()))   #Shows the new Hand
+            if (DISPLAYTEXT): print("Score the hand"+ str(player[on].hand.chart()))
+            if (DISPLAYTEXT): print(player[on].hand.scoreChart())
+            player[on].score = player[on].hand.scoreChart()
+            
+            
+            scores.append(player[on].hand.scoreChart())
+            if (not STATSMODE): print("\n")
+        
+        if (not STATSMODE):print("Player: " + ICG.playerName[scores.index(max(scores)) + 1] + " wins with " + withWhat(max(scores)))
+        for i in range(10):
+            if (withWhat(max(scores)) == typeOfHand[i]):
+                counter[i]+=1
+        if (STATSMODE):main(runs-1,counter)
+        if (DISPLAYTEXT):print("Cards in deck " + str(len(deck.printOut())))
+        if (DISPLAYTEXT):print(str(deck.printOut()) + " deck")
+        
+def totalCounter(counter):
+    total = 0
+    for i in counter:
+        total += i
+    return total
 
-                    
-def exchangeComputerHand(playerOn, hand): #This lets me exchange cards    
-    arr,ar2 = hand
-    s,f = closeToStraight(arr),closeToFlush(ar2)
-    #keep = [-1] * 5 #The represents true or false which cards you are going to keep
-    if (SH.Straight(arr) or SH.Flush(0,4,ar2)):
-        print("Keep Straight or Flush")
-        
-        keep = [True] * 5
-        
-    elif (len(findAnyPairs(arr))!= 0):
-        print("Keep any Pairs")
-        similar = findAnyPairs(arr)
-        keepSimilars(similar)
-        print(similar) #This tells me what the indexes are if there is atleast a pair
-        
-    elif (len(s) != 0):
-        print("Keep close to Straight")
-        print(s)
-        
-    elif (len(f) != 0):
-        print("Keep close to Flush")
-        print(f)
-
-    else:
-        print("Maximize High Cards")
-        print(maximizeTheHighCards(arr))
-        
+def keepGoodCards(player,deck,keep):
+    skip = 0
+    if (str(type(keep)) == "<class 'int'>"):
+        return 0
+    for i in range(len(keep)):
+        if(keep[i]):
+            pass
+        else:
+            badCard = player.hand.cards[i - skip]
+            deck.cards.append(badCard)
+            player.hand.removeCard(badCard)
+            player.hand.addCard(deck.giveRandom())
+            skip += 1
+            
+def exchangeStupidAI(player):
+    x = []
+    for i in range(5):x.append(bool(int(random() * 2)))
+    return x
+            
+def exchangeComputersHand(player):
+    keep = [-1]*5
     
-    
-    #INSERT CODE THAT FINDS WHAT CARDS TO KEEP
-    '''PSUDOCODE Herystic Algrithm
+    arr = player.hand.rankSorted()
+    ar2 = player.hand.suitSorted()
 
-    if (straight or flush):
-        keep = [True] * 5
-        
-    elif(len(findanyPairs(arr))!= 0):
-        similar = findanypairs(arr)
-        keepSimilars(similar)
+    maxRank,maxKeep = closeToStraight(arr)
+    closeToFlushVar = closeToFlush(ar2)
 
-    elif (closeToStraight()):
-        keepGoodCards()
-        
-    elif (clostToFlush()):
-        keepGoodCards()
-        
-    else:
-        maximizeTheHighCards()
-    '''
+    if (SH.Straight(arr) or SH.Flush(ar2)): 
+        return [True]*len(player.hand.cards)
+    elif(findAnyPairs(arr)) != []:
+        return keepIndexes(arr)
+    elif(maxKeep != -1):            #this is for straight
+        return maxKeep
+    player.hand.sortHandBySuit()    #flush deals with suit
+    if(closeToFlushVar != -1): 
+        return closeToFlushVar
+    player.hand.sortHandByRank()    #highcards are by rank
+    return maximizeHighCards(player) 
 
-def maximizeTheHighCards(arr):
-    keep = []
-    for i in range(len(arr)):
-        if (arr[i]>=10):
-            keep.append(i)
+def exchangePlayersHand(player):
+    keep = [-1]*len(player.hand.cards)
+    for i in range(len(keep)):
+        waitingForGoodResponce = True
+        while (waitingForGoodResponce):
+            x = input("\t\tKeep " + str(player.hand.cards[i].printCard()) + ": ")
+            x = x.lower()
+            if (x == "yes" or x == "y"):
+                keep[i] = True
+                waitingForGoodResponce = False
+            elif(x == "no" or x == "n"):
+                keep[i] = False
+                waitingForGoodResponce = False
+            else:
+                print("\t\tI don't know what you said")
     return keep
 
+def withWhat(score):
+    for exp in range(15):
+        if (score//(100**exp) < 99):
+            return typeOfHand[exp - 4]
+    
+def closeToFlush(ar2):
+    for value in ar2:
+        if (ar2.count(value) >= 3):
+            keep = [False]*5
+            for i in range(5):
+                if (ar2[i] == value):
+                    keep[i] = True
+            return keep
+    return -1
 
-def flush (start, end, arr): #This appears to work Need to put this into the Schoring hand
-    if (start == len(arr)-1 or start == end):
-        return True
-    elif (arr[start] == arr[start+1]):
-        return flush(start +1,end,arr)
-    else:
-        return False #Since I am adding this I will also have to change the 
+def closeToStraight(arr):
+    #first make the bool array that tells if one is close
+    rV = list(rankValue)
+    rV.remove(14)
+    rV.append(14)
+    boolRank = [False]*13
+    for i in arr:
+        boolRank[i-2] = True
+    #after that I will then need to find the lastgest value and start from there to tell me the keep
+    nextStep = []
+    maxKeep = -1
+    maxRank = -1
+    for i in range(len(boolRank)-5):
+        if (boolRank[0+i:5+i].count(True) > 3):
+            if (boolRank[0+i:5+i].count(True) > maxRank ):                
+                maxRank = boolRank[0+i:5+i].count(True) 
+                maxKeep = boolRank[0+i:5+i]             
+    return maxRank,maxKeep
 
-def closeToFlush(arr):
-    mLength = 3
-    oLength = len(arr)
-    nLength = oLength
-    while(nLength >= mLength):
-        sIndex = 0
-        while(sIndex + nLength <= oLength):
-            #One problem is that the array that I need to send should be ar4 the one that I did the fancy thing to to make it choose from start to the end
-            if (SH.Flush(sIndex,nLength,arr)): #If the array send was a flush 
-                flushIndexes = []
-                for i in range(nLength):
-                    flushIndexes.append(sIndex+i)
-                return flushIndexes #then send the indexes that where good            
-            sIndex += 1
-        nLength -= 1
-    return []
-
-def closeToStraight(arr): #This will go until it gets to the desired length
-    mLength = 3 #This is the minimum length that I want it to reach so if the computer has a straight of length 3 then it will say to keep those cards
-    oLength = len(arr)
-    nLength = oLength
-    while(nLength >= mLength):
-        sIndex = 0
-        while(sIndex + nLength <= oLength):
-            ar4 = arr[0+sIndex:nLength + sIndex] #ar4 = a string of a straight should only be the indexes
-            if(SH.Straight(ar4)): #The program fond a straight
-                straightIndexes = [] #represents indexes of the straight 
-                for i in range(nLength): #goes for the length of how many numbers where involved in making the straight
-                    straightIndexes.append(sIndex + i)
-                return straightIndexes
-            sIndex += 1
-        nLength -= 1
-    return []
+def keepIndexes(arr):
+    keep  = [False]*5
+    for i in findAnyPairs(arr):
+        keep[i] = True
+    return keep
 
 def findAnyPairs(arr): #These are sorted from least to greatest so if there is a pair then it will be next to each other
     similarIndex = []
@@ -247,116 +187,143 @@ def findAnyPairs(arr): #These are sorted from least to greatest so if there is a
     similarIndex = list(set(similarIndex)) #I need to get rid of the doubles that I will have
     return similarIndex #This is great because it can do pair, 2 pair, 3 of a kind, full house, and 4 of a kind all in one function
     
-def keepSimilars(similar):
-    keep = [-1] * 5
-    for i in range(len(similar) -1):
-        keep[similar[i]] = True
-        keep[similar[i] + 1] = True
+def maximizeHighCards(player):
+    keep = []
+    for i in player.hand.rank():
+        if (i >= 10):
+            keep.append(True)
+        else:
+            keep.append(False)
     return keep
+
+class Deck(): 
+    def __init__(self):
+        self.cards = []
+        for i in range(NUMCARDS):
+            self.cards.append(Card(i)) #In other places I will remove them
+        shuffle(self.cards)
+
+    def printOut(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(self.cards[i].printCard())
+        return printOut
+
+    def giveRandom(self):
+        topCard = self.cards[0]
+        self.cards.remove(topCard)
+        return topCard
     
-    #At this point it should already know what are the best cards to choose
-    for i in range(5):
-        if not (ar3[i]):#if ar3[i] = False then exchange
-            ICG.cardLoc[hand[i]] = ICG.DECK #It will set the card the player had and send it to the deck
-            assignCard(playerOn) #It will give the player a new card inside the deck
+class Player(): 
+    def __init__(self, name = "defalt", playerNum = 1, isComputer = False): #I can set all of these
+        self.playerNum = playerNum
+        self.name = name 
+        self.isComputer = isComputer
+        self.hand = Hand()
 
-#What I want to do next is make a withWhat Function
-def withWhat(winner,scores):
-    #what this will do is that if it has the winning player index
-    #then it will tell what it won with
-    for i in range(10):
-        if(scores[winner][9-i] != 0):
-            return ICG.wonWith[i]
+    def printStats(self):
+        printOut = []
+        printOut.append(self.name)
+        printOut.append(self.playerNum)
+        printOut.append(self.isComputer)
+        printOut.append(self.hand.printHand())
+        return printOut
 
-def clearDeck(): #This clears the deck 
-    for i in range (ICG.NUMCARDS): #goes through all of the cards 
-        ICG.cardLoc[i] = ICG.DECK  #and stores them in the deck
-
-def assignCard(playerOn): #This gives a single card from the deck to the hand
-    countCardsLeft = []
-    for i in range(ICG.NUMCARDS):
-        
-        if (ICG.cardLoc[i] == ICG.DECK):
-            countCardsLeft.append(i)            
-    i = int(random() * len(countCardsLeft)) #picks a random card from 0 to how many cards are assigned in the deck
-    ICG.cardLoc[countCardsLeft[i]] = playerOn #assignes the card picked value location in the deck is equal to the player you are on
-
-def showDeck(): #shows all of the locations of the cards
-    print("Location of all cards") 
-    print("#" + "\t" + "card" + "\t" + "\t " + "Location") #does a bit of fancy printing
-    for i in range(ICG.NUMCARDS): #goes through all of the cards
-        print(printCard(i)) #prints the card
-    print("\n") 
-
-def showHand(playerOn): #show the hand of the selected player
-    for i in range(ICG.NUMCARDS): #goes through all of the cards
-        if (ICG.cardLoc[i] == playerOn): #if the location matches the player you are on
-            print(printCard(i)) #then print the card
-    print("")
-
-def printCard(i): #Given an Index it will print the card (index Ace of Diamonds player 1)
-    sN = i // len(ICG.rankName)  
-    rN = i % len(ICG.rankName)    
-    return ('{:3}  {:5} of {:10} {}'.format(str(i),str(ICG.rankName[rN]),str(ICG.suitName[sN]),str(ICG.playerName[ICG.cardLoc[i]])))
-
-def blankOfBlank (i): #This function displays the (Ace of Hearts) ect in the hand
-    sN = i // len(ICG.rankName)
-    rN = i % len(ICG.rankName)
-    return ('{} of {}'.format(str(ICG.rankName[rN]),str(ICG.suitName[sN])))
-
-def scoreHand(playerOn): #returns the hand that for the playerOn
-    hand = []
-    for i in range(ICG.NUMCARDS): 
-        if (ICG.cardLoc[i] == playerOn):
-            hand.append(i) 
-    return hand
-
-def Sort(hand): #given the hand returns its Arr, and Ar2 Arrays 
-    Arr = [-1] * len(hand) #Stands for Rank
-    Ar2 = [-1] * len(hand) #Stands for Suit
+class Hand():
+    def __init__(self, cards = []):
+        self.cards = []
     
-    for i in range(len(hand)):
-        Arr[i] = hand[i] % len(ICG.rankName)
-        if(Arr[i] == 0): #changes ace 0
-            Arr[i] = 13  #to 13
-        Arr[i] += 1
-        Ar2[i] = hand[i] // len(ICG.rankName)
+    def addCard(self, Card):
+        self.cards.append(Card)
         
-    Arr.sort() #This sorts them from least to greatest
-    Ar2.sort() #I want that because it simplifies a lot of things when calculating the score of the hand
-    return Arr, Ar2 #This returns a tuple
-            
-def ScorePlayer(Arr,Ar2,playerOn,scores): #given Arr and Ar2 will return the scores for playerOn
-    scores[playerOn- 1] = [SH.HighCard(Arr),       #relies on highCard
-                           SH.OnePair(Arr),        #value of the highest pair
-                           SH.TwoPair(Arr),        #value of the highest pair
-                           SH.ThreeOfAKind(Arr),   #value of the highest triplet
-                           SH.Straight(Arr),               #True or False      #ends up looking at high card Anyways
-                           SH.Flush(0,4,Ar2),                  #True or False      #ends up looking at high card Anyways
-                           SH.FullHouse(Arr),              #True or False      #ends up looking at high card Anyways
-                           SH.FourOfAKind(Arr),    #value of the highest quadlet
-                           SH.StraightFlush(Arr,Ar2),      #True or False      #ends up looking at high card Anyways
-                           SH.RoyalFlush(Arr,Ar2)]         #True or False      #ends up looking at high card Anyways
-    return scores #FEATURE this could be better if I added the kickers Kicker1, Kicker2, Kicker3, Kicker4 aka lowCard #This will prevent ties even more from happening
+    def removeCard(self,Index):
+        self.cards.remove(Index)
+    
+    def rank(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(rankValue[self.cards[i].rank()])
+        return printOut
 
-def WhoWon(player1,player2,scores): #Given the indexes of players it will tell me who has the better hand
-    lns = len(scores[0]) -1#This may be unnessacary but whatever
-    for i in range(lns+1): #the theory here is that if I look at the scores[][] backwards then it will tell me the most valuable hand, if they are equal then look at the next until it gets to highcard
-                        #if all of them are equal then that would be extreamly rare but I don't have a case for that yet
-        if (scores[player1][lns - i] > scores[player2][lns - i]):
-            return player1
-        elif (scores[player1][lns - i] < scores[player2][lns - i]):
-            return player2 #This function WhoWon is good but I would like it to be recursive
+    def suit(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(self.cards[i].suit())
+        return printOut
 
-def Evaluate(scores): #This is my updated who won function which should work
-    winers = [] #Just make sure that it dosn't try to look for only 1 player then it won't work
-    for p in range(2):
-        total = 0
-        for e in range(10):
-            total += scores[p][e]*10**e
-            #print(total)
-        winers.append(total)
-    return winers 
+    def rankSorted(self):
+        x = self.rank()
+        x.sort()
+        return x
+    
+    def suitSorted(self):
+        x = self.suit()
+        x.sort()
+        return x
+    
+    def sortHandByRank(self):
+        for x in range(len(self.cards)-1):
+            for y in range(x,len(self.cards)):
+                if (self.cards[x].rank() > self.cards[y].rank()): #Swap if the first is bigger than the other
+                    temp = self.cards[x]
+                    self.cards[x] = self.cards[y]
+                    self.cards[y] = temp
 
-if __name__ == "__main__":
-    main()
+    def sortHandBySuit(self):
+        for x in range(len(self.cards)-1):
+            for y in range(x,len(self.cards)):
+                if (self.cards[x].suit() > self.cards[y].suit()): #Swap if the first is bigger than the other
+                    temp = self.cards[x]
+                    self.cards[x] = self.cards[y]
+                    self.cards[y] = temp
+
+    def printHand(self):
+        printOut = []
+        for i in range(len(self.cards)):
+            printOut.append(self.cards[i].printCard())
+        return printOut
+    
+    def scoreChart(self):
+        total,base = (0,100)
+        chart = self.chart()
+        for i in range(len(chart)):
+            total += chart[i]*base**i
+        return total
+    
+    def chart(self):
+        rank = self.rankSorted()
+        suit = self.suitSorted()
+        
+        scoreChart = [rank[0],rank[1],rank[2],rank[3], #Breaks ties for lower ranked cards
+                    SH.HighCard(rank),
+                    SH.OnePair(rank),
+                    SH.TwoPair(rank),
+                    SH.ThreeOfAKind(rank),
+                    SH.Straight(rank),
+                    SH.Flush(suit),
+                    SH.FullHouse(rank),
+                    SH.FourOfAKind(rank),
+                    SH.StraightFlush(rank,suit),
+                    SH.RoyalFlush(rank,suit)]
+        return scoreChart
+    
+class Card():
+    def __init__(self, index):
+        self.index = index
+
+    def rank(self):
+        return self.index % len(rankName)
+    
+    def suit(self):
+        return self.index // len(rankName)
+
+    def printCard(self):
+        return (rankName[self.rank()] + suitName[self.suit()])
+    
+if (__name__ == "__main__"):
+    if not STATSMODE:
+        main(1,[0]*10)
+    while (STATSMODE):
+        main(runMax,counter)
+        print("counter = "+ str(counter))
+        if DEBUGMODE: print("total runs: " + str(totalCounter(counter)))

@@ -1,6 +1,3 @@
-#I want to make it so that cards in the deck work like in real life
-#Shuffling
-#and Cards are drawn from the top of the deck instead of pulling a random card
 from random import *
 import ScoringHand as SH
 import ICG
@@ -9,79 +6,87 @@ import sys
 NUMCARDS = 52
 suitName =   ("♥", "♦", "♠", "♣")
 rankName =   ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
-rankValue =  ( 14,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 ,  10 ,  11,  12,  13) #This would be usefull by a bunch and a half
+rankValue =  ( 14, 2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 ,  10 ,  11,  12,  13) #This would be usefull by a bunch and a half
 typeOfHand = ("High Card", "Pair", "Two Pair","Three of a Kind", "Straight", "Flush", "Full House", "Four of a Kind", "Straight Flush", "Royal Flush")
 
 ICG.NUMPLAYERS = 2
+#I estimate that I will have aproximentally ((((15*60*60)/13)*26190)+5133240) by tomorrow before I present aprox 113 million 
+'''
+Smart vs Dumb AI
+#counter = [[15496399, 1929949, 9066106], [34979499, 2242625, 20525995], [9570880, 455777, 3517010], [5534101, 236081, 1439231], [1093287, 50144, 365160], [1408506, 46164, 149136], [926563, 35345, 113556], [182588, 6337, 16400], [5840, 180, 1404], [1165, 40, 162]]
+#total runs: 109395630
+#Sample 1
+#This took about 16 hours you have to run it a lot of times because of how rare it is to get a royal flush 1 in 670,000 chance acording to wikipedia
+#Also my guess was pretty close off by about 3 million 
+'''
 
+isStupid = [True,False]
 
-#Sample .58 for stupid AI
-#counter = [44553740, 37556882, 4227466, 1874652, 350109, 174505, 128867, 21333, 1178, 128]
-#total runs: 88888860
-#counter = [60395333, 50916676, 5728094, 2543432, 474677, 236532, 174683, 28983, 1605, 175]
-#total runs: 120500190
+DEBUGMODE = True #This just displays the amount of runs for funzies
 
-DEBUGMODE = True
-STATSMODE = True
 
 STUPIDAI = True
-DISPLAYTEXT = DEBUGMODE and not STATSMODE
+DISPLAYTEXT = DEBUGMODE and not True
 
-if STATSMODE: ICG.NUMPLAYERS = 1
+if True: ICG.NUMPLAYERS = 1
 runMax = 26190
 
-counter = [0]*10
+counter = []
+for i in range(10): counter.append([0,0,0]) #If you want to start a new statistic use this one
+
+#If you want to continue where you left off uncomment below
+#counter = [[15496399, 1929949, 9066106], [34979499, 2242625, 20525995], [9570880, 455777, 3517010], [5534101, 236081, 1439231], [1093287, 50144, 365160], [1408506, 46164, 149136], [926563, 35345, 113556], [182588, 6337, 16400], [5840, 180, 1404], [1165, 40, 162]]
+
 sys.setrecursionlimit(runMax+200)
 
 def main(runs,counter):
     
     if (runs != 0):
         deck = Deck() #Initilize deck and players
+        deckCopy = Deck()
+        
         player = []
+        player.append(Player("Smart Comp",1,True))
+        player.append(Player("Dump Comp",2,True))
         
-        for on in range(ICG.NUMPLAYERS):
-            player.append(Player(ICG.playerName[on+1], on+1, ICG.isComputer[on]))
-            
-        for i in range(5):
-            for on in range(ICG.NUMPLAYERS):
-                player[on].hand.addCard(deck.giveRandom()) #Make this generate a random card in the deck
-                
-        scores = []
-        for on in range(ICG.NUMPLAYERS):
-            if (not STATSMODE): print("It's " + player[on].name + "'s turn")#input("It's " + player[on].name + "'s turn")
-            #player[on].hand.cards = [Card(0),Card(12),Card(11),Card(10),Card(9)] #Lets me cheat for debugging purpouses 
-            player[on].hand.sortHandByRank()
-            if (not STATSMODE): print("hand " + str(player[on].hand.printHand()))#input("hand " + str(player[on].hand.printHand()))              #Players hand is shown
-            keep = []
-            if (player[on].isComputer):
-                if STUPIDAI:
-                    keep = exchangeStupidAI(player[on])
-                else:
-                    keep = exchangeComputersHand(player[on])    #Computer says what it wants
-            else:
-                keep = exchangePlayersHand(player[on])      #User says what they want                                                #DEVELOPER
-            if (DISPLAYTEXT): print("keep\t" + str(keep))
-            keepGoodCards(player[on],deck,keep)             #gits rid of the cards you don't want keep the cards you do what
-            
-            if (not STATSMODE): print("new hand " + str(player[on].hand.printHand())) #input("new hand " + str(player[on].hand.printHand()))              #Shows the new Hand
-            if (DISPLAYTEXT): print("Score the hand"+ str(player[on].hand.chart()))
-            if (DISPLAYTEXT): print(player[on].hand.scoreChart())
-            player[on].score = player[on].hand.scoreChart()
-            if (DISPLAYTEXT):print(len(deck.printOut()))
-            if (DISPLAYTEXT):print(deck.printOut())
-            scores.append(player[on].hand.scoreChart())
-            if (not STATSMODE): print("\n")
-        
-        if (not STATSMODE):print("Player: " + ICG.playerName[scores.index(max(scores)) + 1] + " wins with " + withWhat(max(scores)))#input("Player: " + ICG.playerName[scores.index(max(scores)) + 1] + " wins with " + withWhat(max(scores)))
-        for i in range(10):
-            if (withWhat(max(scores)) == typeOfHand[i]):
-                counter[i]+=1
-        if (STATSMODE):main(runs-1,counter)
+        for i in range(5): #this shuffles the cards out to the player there is only one because I am making copies for this one
+            player[0].hand.addCard(deck.giveRandom()) #Make this generate a random card in the deck
 
+        deckCopy.cards = deck.cards[:]
+        scores = []
+        player[1].hand.cards = player[0].hand.cards[:] #I am also keeping the deck as a copy so if it is in the same exact state then we will see who is better
+
+
+        #This is the same as above except it is exchanging with stupid AI
+        #It is also pulling from the copy of the deck I made
+        
+        player[0].hand.sortHandByRank()
+        keep = exchangeComputersHand(player[0])
+        keepGoodCards(player[0],deck,keep)             
+        player[0].score = player[0].hand.scoreChart()
+        scores.append(player[0].hand.scoreChart())
+        
+        keepCopy = exchangeStupidAI(player[1])
+        keepGoodCards(player[1],deckCopy,keepCopy)
+        player[1].score = player[1].hand.scoreChart()
+        scores.append(player[1].hand.scoreChart())
+        
+        handType = withWhat(max(scores)) #x represents the level of the hand
+        if (scores[0] > scores[1]):
+            counter[handType][0] += 1
+        elif (scores[1] > scores[0]):
+            counter[handType][2] += 1
+        else:
+            counter[handType][1] += 1
+
+        main(runs-1,counter) #This recursivly goes on ~25,000 I had to increase the max recursion calls and guess and check to make it pretty much the maximum I could have 
+        #Everything below should be the same from my last program
+        
 def totalCounter(counter):
     total = 0
-    for i in counter:
-        total += i
+    for x in range (len(counter)):
+        for y in range (len(counter[x])):
+            total += counter[x][y]
     return total
 
 def keepGoodCards(player,deck,keep):
@@ -97,33 +102,31 @@ def keepGoodCards(player,deck,keep):
             player.hand.removeCard(badCard)
             player.hand.addCard(deck.giveRandom())
             skip += 1
-
-
+            
 def exchangeStupidAI(player):
     x = []
     for i in range(5):x.append(bool(int(random() * 2)))
-    return x
-        
+    return x       
             
 def exchangeComputersHand(player):
     keep = [-1]*5
-    
-    arr = player.hand.rankSorted()
-    ar2 = player.hand.suitSorted()
+    rankHand = player.hand.rankSorted()
+    suitHand = player.hand.suitSorted()
+    closeToStraightVar = closeToStraight(rankHand)
+    closeToFlushVar = closeToFlush(suitHand)
 
-    maxRank,maxKeep = closeToStraight(arr)
-    closeToFlushVar = closeToFlush(ar2)
-
-    if (SH.Straight(arr) or SH.Flush(ar2)): 
-        return [True]*len(player.hand.cards)
-    elif(findAnyPairs(arr)) != []:
-        return keepIndexes(arr)
-    elif(maxKeep != -1):#this is for straight
-        return maxKeep
-    player.hand.sortHandBySuit() #flush deals with suit
+    if SH.Straight(rankHand):
+        return [True]*5
+    if SH.Flush(suitHand): 
+        return [True]*5
+    elif(findAnyPairs(rankHand)) != []:
+        return keepIndexes(rankHand)
+    elif(closeToStraightVar != -1):             #this is for straight
+        return closeToStraightVar
+    player.hand.sortHandBySuit()                #flush deals with suit
     if(closeToFlushVar != -1): 
         return closeToFlushVar
-    player.hand.sortHandByRank() #highcards are by rank
+    player.hand.sortHandByRank()                #highcards are by rank
     return maximizeHighCards(player) 
 
 def exchangePlayersHand(player):
@@ -146,7 +149,7 @@ def exchangePlayersHand(player):
 def withWhat(score):
     for exp in range(15):
         if (score//(100**exp) < 99):
-            return typeOfHand[exp - 4]
+            return exp - 4
     
 def closeToFlush(ar2):
     for value in ar2:
@@ -326,9 +329,7 @@ class Card():
         return (rankName[self.rank()] + suitName[self.suit()])
     
 if (__name__ == "__main__"):
-    if not STATSMODE:
-        main(1,[0]*10)
-    while (STATSMODE):
+    while (True):
         main(runMax,counter)
         print("counter = "+ str(counter))
         if DEBUGMODE: print("total runs: " + str(totalCounter(counter)))
